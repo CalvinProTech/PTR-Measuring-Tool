@@ -1,0 +1,76 @@
+// Roof Analysis Types
+export interface RoofSegment {
+  areaMeters2: number;
+  pitchDegrees: number;
+  azimuthDegrees: number;
+}
+
+export interface RoofData {
+  roofAreaSqFt: number;
+  roofFacets: number;
+  predominantPitch: string;
+  ridgesHipsFt: number;
+  valleysFt: number;
+  rakesFt: number;
+  eavesFt: number;
+  perimeterFt: number;
+}
+
+export interface GeocodeResult {
+  formattedAddress: string;
+  latitude: number;
+  longitude: number;
+  city: string;
+  state: string;
+  zipCode: string;
+}
+
+// Pricing Types
+export interface PricingInput {
+  sqFt: number;
+  costPerSqFt?: number;
+  targetProfit?: number;
+  commissionRate?: number;
+  includeGutters?: boolean;
+  perimeterFt?: number;
+  gutterPricePerFt?: number;
+}
+
+export interface PricingOutput {
+  cost: number;
+  pricePerSqFtCash: number;
+  pricePerSqFt5Dealer: number;
+  pricePerSqFt10Dealer: number;
+  pricePerSqFt18Fee: number;
+  pricePerSqFt23Fee: number;
+  priceCash: number;
+  price5Dealer: number;
+  price10Dealer: number;
+  commissionCash: number;
+  commission5Dealer: number;
+  commission10Dealer: number;
+  fee13: number;
+  profit: number;
+  gutterTotal: number;
+  finalTotal: number;
+}
+
+// API Response Types
+export interface RoofAnalysisResponse {
+  success: boolean;
+  data?: RoofData;
+  error?: string;
+}
+
+export interface GeocodeResponse {
+  success: boolean;
+  data?: GeocodeResult;
+  error?: string;
+}
+
+// Combined Estimate Type
+export interface EstimateData {
+  address: GeocodeResult;
+  roof: RoofData;
+  pricing: PricingOutput;
+}
