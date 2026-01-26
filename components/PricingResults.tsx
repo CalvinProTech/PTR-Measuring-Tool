@@ -20,79 +20,37 @@ export function PricingResults({ pricing, sqFt }: PricingResultsProps) {
         {/* Main Pricing Options */}
         <div className="grid gap-4 sm:grid-cols-3">
           <PriceCard
-            title="Cash Price"
+            title="Tier 1 (Low)"
             price={pricing.priceCash}
             pricePerSqFt={pricing.pricePerSqFtCash}
             commission={pricing.commissionCash}
             highlight
           />
           <PriceCard
-            title="5% Dealer Fee"
+            title="Tier 2 (Middle)"
             price={pricing.price5Dealer}
             pricePerSqFt={pricing.pricePerSqFt5Dealer}
             commission={pricing.commission5Dealer}
           />
           <PriceCard
-            title="10% Dealer Fee"
+            title="Tier 3 (High)"
             price={pricing.price10Dealer}
             pricePerSqFt={pricing.pricePerSqFt10Dealer}
             commission={pricing.commission10Dealer}
           />
         </div>
 
-        {/* Cost Breakdown */}
+        {/* Complete Wood Replacement Cost */}
         <div className="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
-          <h3 className="text-sm font-medium text-gray-700">Cost Breakdown</h3>
-          <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-4">
-            <div>
-              <dt className="text-gray-500">Base Cost</dt>
-              <dd className="font-medium text-gray-900">
-                {formatCurrency(pricing.cost)}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-gray-500">Target Profit</dt>
-              <dd className="font-medium text-gray-900">
-                {formatCurrency(pricing.profit)}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-gray-500">13% Fee</dt>
-              <dd className="font-medium text-gray-900">
-                {formatCurrency(pricing.fee13)}
-              </dd>
-            </div>
-            {pricing.gutterTotal > 0 && (
-              <div>
-                <dt className="text-gray-500">Gutter Add-on</dt>
-                <dd className="font-medium text-gray-900">
-                  {formatCurrency(pricing.gutterTotal)}
-                </dd>
-              </div>
-            )}
-          </dl>
+          <h3 className="text-sm font-medium text-gray-700">Complete Wood Replacement Cost</h3>
+          <p className="mt-2 text-2xl font-bold text-gray-900">
+            {formatCurrency((sqFt / 32) * 145)}
+          </p>
+          <p className="mt-1 text-xs text-gray-500">
+            Based on {formatNumber(sqFt)} sq ft / 32 × $145
+          </p>
         </div>
 
-        {/* Additional Fee Options */}
-        <div className="mt-6">
-          <h3 className="text-sm font-medium text-gray-700">
-            Additional Financing Options
-          </h3>
-          <div className="mt-3 flex flex-wrap gap-4">
-            <div className="rounded-md bg-gray-100 px-3 py-2">
-              <span className="text-xs text-gray-500">18% Fee: </span>
-              <span className="font-medium text-gray-900">
-                {formatCurrency(pricing.pricePerSqFt18Fee * sqFt)}
-              </span>
-            </div>
-            <div className="rounded-md bg-gray-100 px-3 py-2">
-              <span className="text-xs text-gray-500">23% Fee: </span>
-              <span className="font-medium text-gray-900">
-                {formatCurrency(pricing.pricePerSqFt23Fee * sqFt)}
-              </span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

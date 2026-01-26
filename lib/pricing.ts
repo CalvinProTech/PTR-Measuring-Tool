@@ -36,9 +36,9 @@ export function calculatePricing(input: PricingInput): PricingOutput {
   // Formula: (cost + profit) / sqFt / (1 - commissionRate)
   const pricePerSqFtCash = (cost + targetProfit) / sqFt / (1 - commissionRate);
 
-  // Dealer fee variations
-  const pricePerSqFt5Dealer = pricePerSqFtCash / (1 - 0.05);
-  const pricePerSqFt10Dealer = pricePerSqFtCash / (1 - 0.1);
+  // Dealer fee variations (Tier 2 = 10%, Tier 3 = 15%)
+  const pricePerSqFt5Dealer = pricePerSqFtCash / (1 - 0.1);
+  const pricePerSqFt10Dealer = pricePerSqFtCash / (1 - 0.15);
   const pricePerSqFt18Fee = pricePerSqFtCash / (1 - 0.18);
   const pricePerSqFt23Fee = pricePerSqFtCash / (1 - 0.23);
 

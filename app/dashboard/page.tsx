@@ -120,6 +120,22 @@ export default function DashboardPage() {
       {/* Results */}
       {estimate && !isLoading && (
         <div className="mt-8 space-y-6">
+          {/* Street View Image */}
+          <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+            <div className="border-b border-gray-200 px-6 py-4">
+              <h2 className="text-lg font-semibold text-gray-900">Property View</h2>
+              <p className="mt-1 text-sm text-gray-500">
+                {estimate.address.formattedAddress}
+              </p>
+            </div>
+            <div className="relative aspect-[2/1] w-full">
+              <img
+                src={estimate.address.streetViewUrl}
+                alt={`Street view of ${estimate.address.formattedAddress}`}
+                className="h-full w-full object-cover"
+              />
+            </div>
+          </div>
           <RoofResults address={estimate.address} roof={estimate.roof} />
           <PricingResults
             pricing={estimate.pricing}

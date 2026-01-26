@@ -23,6 +23,7 @@ export interface GeocodeResult {
   city: string;
   state: string;
   zipCode: string;
+  streetViewUrl: string;
 }
 
 // Pricing Types
