@@ -24,6 +24,7 @@ export interface GeocodeResult {
   state: string;
   zipCode: string;
   streetViewUrl: string;
+  aerialViewUrl: string;
 }
 
 // Pricing Types
@@ -56,6 +57,18 @@ export interface PricingOutput {
   finalTotal: number;
 }
 
+// Property Value Types
+export interface PropertyValue {
+  price: number;
+  priceRangeLow: number;
+  priceRangeHigh: number;
+  bedrooms?: number;
+  bathrooms?: number;
+  squareFootage?: number;
+  yearBuilt?: number;
+  propertyType?: string;
+}
+
 // API Response Types
 export interface RoofAnalysisResponse {
   success: boolean;
@@ -69,9 +82,16 @@ export interface GeocodeResponse {
   error?: string;
 }
 
+export interface PropertyValueResponse {
+  success: boolean;
+  data?: PropertyValue;
+  error?: string;
+}
+
 // Combined Estimate Type
 export interface EstimateData {
   address: GeocodeResult;
   roof: RoofData;
   pricing: PricingOutput;
+  propertyValue?: PropertyValue;
 }

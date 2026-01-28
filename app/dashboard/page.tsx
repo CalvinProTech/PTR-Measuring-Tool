@@ -6,7 +6,8 @@ import { RoofResults } from "@/components/RoofResults";
 import { PricingResults } from "@/components/PricingResults";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { calculatePricing } from "@/lib/pricing";
-import type { EstimateData, GeocodeResponse, RoofAnalysisResponse } from "@/types";
+import { formatCurrency } from "@/lib/utils";
+import type { EstimateData, GeocodeResponse, RoofAnalysisResponse, PropertyValueResponse } from "@/types";
 
 export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -32,14 +33,16 @@ export default function DashboardPage() {
         throw new Error(geocodeData.error || "Failed to validate address");
       }
 
-      const { latitude, longitude } = geocodeData.data;
+      const { latitude, longitude, formattedAddress } = geocodeData.data;
 
-      // Step 2: Get roof analysis
-      const roofRes = await fetch(
-        `/api/roof-analysis?lat=${latitude}&lng=${longitude}`
-      );
+      // Step 2: Get roof analysis and property value in parallel
+      const [roofRes, propertyValueRes] = await Promise.all([
+        fetch(`/api/roof-analysis?lat=${latitude}&lng=${longitude}`),
+        fetch(`/api/property-value?address=${encodeURIComponent(formattedAddress)}`),
+      ]);
 
       const roofData: RoofAnalysisResponse = await roofRes.json();
+      const propertyValueData: PropertyValueResponse = await propertyValueRes.json();
 
       if (!roofData.success || !roofData.data) {
         throw new Error(roofData.error || "Failed to analyze roof");
@@ -51,11 +54,12 @@ export default function DashboardPage() {
         perimeterFt: roofData.data.perimeterFt,
       });
 
-      // Set the complete estimate
+      // Set the complete estimate (property value is optional)
       setEstimate({
         address: geocodeData.data,
         roof: roofData.data,
         pricing,
+        propertyValue: propertyValueData.success ? propertyValueData.data : undefined,
       });
     } catch (err) {
       const message =
@@ -120,21 +124,78 @@ export default function DashboardPage() {
       {/* Results */}
       {estimate && !isLoading && (
         <div className="mt-8 space-y-6">
-          {/* Street View Image */}
+          {/* Property Views */}
           <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
             <div className="border-b border-gray-200 px-6 py-4">
-              <h2 className="text-lg font-semibold text-gray-900">Property View</h2>
+              <h2 className="text-lg font-semibold text-gray-900">Property Views</h2>
               <p className="mt-1 text-sm text-gray-500">
                 {estimate.address.formattedAddress}
               </p>
             </div>
-            <div className="relative aspect-[2/1] w-full">
-              <img
-                src={estimate.address.streetViewUrl}
-                alt={`Street view of ${estimate.address.formattedAddress}`}
-                className="h-full w-full object-cover"
-              />
+            <div className="grid gap-4 p-4 sm:grid-cols-2">
+              <div>
+                <p className="mb-2 text-sm font-medium text-gray-700">Street View</p>
+                <div className="relative aspect-[2/1] w-full overflow-hidden rounded-lg">
+                  <img
+                    src={estimate.address.streetViewUrl}
+                    alt={`Street view of ${estimate.address.formattedAddress}`}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              </div>
+              <div>
+                <p className="mb-2 text-sm font-medium text-gray-700">Aerial View</p>
+                <div className="relative aspect-[2/1] w-full overflow-hidden rounded-lg">
+                  <img
+                    src={estimate.address.aerialViewUrl}
+                    alt={`Aerial view of ${estimate.address.formattedAddress}`}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              </div>
             </div>
+            {/* Property Value Estimate */}
+            {estimate.propertyValue && (
+              <div className="border-t border-gray-200 px-6 py-4">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div>
+                    <p className="text-sm text-gray-500">Estimated Property Value</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {formatCurrency(estimate.propertyValue.price)}
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      Range: {formatCurrency(estimate.propertyValue.priceRangeLow)} - {formatCurrency(estimate.propertyValue.priceRangeHigh)}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-4 text-sm">
+                    {estimate.propertyValue.bedrooms && (
+                      <div className="text-center">
+                        <p className="font-semibold text-gray-900">{estimate.propertyValue.bedrooms}</p>
+                        <p className="text-xs text-gray-500">Beds</p>
+                      </div>
+                    )}
+                    {estimate.propertyValue.bathrooms && (
+                      <div className="text-center">
+                        <p className="font-semibold text-gray-900">{estimate.propertyValue.bathrooms}</p>
+                        <p className="text-xs text-gray-500">Baths</p>
+                      </div>
+                    )}
+                    {estimate.propertyValue.squareFootage && (
+                      <div className="text-center">
+                        <p className="font-semibold text-gray-900">{estimate.propertyValue.squareFootage.toLocaleString()}</p>
+                        <p className="text-xs text-gray-500">Sq Ft</p>
+                      </div>
+                    )}
+                    {estimate.propertyValue.yearBuilt && (
+                      <div className="text-center">
+                        <p className="font-semibold text-gray-900">{estimate.propertyValue.yearBuilt}</p>
+                        <p className="text-xs text-gray-500">Built</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
           <RoofResults address={estimate.address} roof={estimate.roof} />
           <PricingResults
