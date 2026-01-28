@@ -5,6 +5,7 @@ const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 const SOLAR_API_BASE = "https://solar.googleapis.com/v1";
 const GEOCODING_API_BASE = "https://maps.googleapis.com/maps/api/geocode/json";
 const STREET_VIEW_API_BASE = "https://maps.googleapis.com/maps/api/streetview";
+const STATIC_MAP_API_BASE = "https://maps.googleapis.com/maps/api/staticmap";
 
 /**
  * Geocode an address using Google Geocoding API
@@ -55,6 +56,9 @@ export async function geocodeAddress(
   // Construct Street View URL
   const streetViewUrl = `${STREET_VIEW_API_BASE}?size=800x400&location=${location.lat},${location.lng}&key=${GOOGLE_MAPS_API_KEY}`;
 
+  // Construct Aerial/Satellite View URL
+  const aerialViewUrl = `${STATIC_MAP_API_BASE}?center=${location.lat},${location.lng}&zoom=20&size=800x400&maptype=satellite&key=${GOOGLE_MAPS_API_KEY}`;
+
   return {
     formattedAddress: result.formatted_address,
     latitude: location.lat,
@@ -63,6 +67,7 @@ export async function geocodeAddress(
     state,
     zipCode,
     streetViewUrl,
+    aerialViewUrl,
   };
 }
 
