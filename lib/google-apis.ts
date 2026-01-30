@@ -145,7 +145,17 @@ function calculatePredominantPitch(segments: RoofSegment[]): string {
     curr.areaMeters2 > prev.areaMeters2 ? curr : prev
   );
 
-  return pitchDegreesToRatio(largest.pitchDegrees || 18.43); // Default ~4/12
+  // Use nullish coalescing to preserve 0 values (flat roofs)
+  const pitchDegrees = largest.pitchDegrees ?? 18.43; // Default ~4/12
+
+  // Treat pitches under 7.2 degrees as flat (0/12)
+  // 7.2° ≈ 1.5/12, so anything that would round to 0/12 or 1/12 is considered flat
+  // This accounts for Solar API reporting small non-zero values for flat roofs
+  if (pitchDegrees < 7.2) {
+    return "0/12";
+  }
+
+  return pitchDegreesToRatio(pitchDegrees);
 }
 
 /**
