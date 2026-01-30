@@ -1,0 +1,21 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model PricingSettings {
+  id               String   @id @default(cuid())
+  costPerSqFt      Float    @default(4.5)
+  targetProfit     Float    @default(2000)
+  commissionRate   Float    @default(0.1)
+  gutterPricePerFt Float    @default(15.0)
+  tier1DealerFee   Float    @default(0)     // Cash - no fee
+  tier2DealerFee   Float    @default(0.10)  // 10%
+  tier3DealerFee   Float    @default(0.15)  // 15%
+  updatedAt        DateTime @updatedAt
+  updatedBy        String?  // Clerk user ID
+}

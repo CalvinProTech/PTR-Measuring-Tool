@@ -1,18 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AddressForm } from "@/components/AddressForm";
 import { RoofResults } from "@/components/RoofResults";
 import { PricingResults } from "@/components/PricingResults";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { calculatePricing } from "@/lib/pricing";
 import { formatCurrency } from "@/lib/utils";
-import type { EstimateData, GeocodeResponse, RoofAnalysisResponse, PropertyValueResponse } from "@/types";
+import type { EstimateData, GeocodeResponse, RoofAnalysisResponse, PropertyValueResponse, PricingSettingsData, PricingSettingsResponse } from "@/types";
 
 export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [estimate, setEstimate] = useState<EstimateData | null>(null);
+  const [pricingSettings, setPricingSettings] = useState<PricingSettingsData | null>(null);
+
+  // Fetch pricing settings on mount
+  useEffect(() => {
+    async function fetchPricingSettings() {
+      try {
+        const res = await fetch("/api/settings/pricing");
+        const data: PricingSettingsResponse = await res.json();
+        if (data.success && data.data) {
+          setPricingSettings(data.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch pricing settings:", err);
+      }
+    }
+    fetchPricingSettings();
+  }, []);
 
   const handleAddressSubmit = async (address: string) => {
     setIsLoading(true);
@@ -48,10 +65,19 @@ export default function DashboardPage() {
         throw new Error(roofData.error || "Failed to analyze roof");
       }
 
-      // Step 3: Calculate pricing
+      // Step 3: Calculate pricing with settings from database
       const pricing = calculatePricing({
         sqFt: roofData.data.roofAreaSqFt,
         perimeterFt: roofData.data.perimeterFt,
+        ...(pricingSettings && {
+          costPerSqFt: pricingSettings.costPerSqFt,
+          targetProfit: pricingSettings.targetProfit,
+          commissionRate: pricingSettings.commissionRate,
+          gutterPricePerFt: pricingSettings.gutterPricePerFt,
+          tier1DealerFee: pricingSettings.tier1DealerFee,
+          tier2DealerFee: pricingSettings.tier2DealerFee,
+          tier3DealerFee: pricingSettings.tier3DealerFee,
+        }),
       });
 
       // Set the complete estimate (property value is optional)
