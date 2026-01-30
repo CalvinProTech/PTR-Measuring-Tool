@@ -2,18 +2,27 @@
 
 import { useState, useEffect } from "react";
 import { AddressForm } from "@/components/AddressForm";
+import { RoofFeaturesForm } from "@/components/RoofFeaturesForm";
 import { RoofResults } from "@/components/RoofResults";
 import { PricingResults } from "@/components/PricingResults";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { calculatePricing } from "@/lib/pricing";
 import { formatCurrency } from "@/lib/utils";
-import type { EstimateData, GeocodeResponse, RoofAnalysisResponse, PropertyValueResponse, PricingSettingsData, PricingSettingsResponse } from "@/types";
+import type { EstimateData, GeocodeResponse, RoofAnalysisResponse, PropertyValueResponse, PricingSettingsData, PricingSettingsResponse, RoofFeatureAdjustments } from "@/types";
 
 export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [estimate, setEstimate] = useState<EstimateData | null>(null);
   const [pricingSettings, setPricingSettings] = useState<PricingSettingsData | null>(null);
+  const [roofFeatures, setRoofFeatures] = useState<RoofFeatureAdjustments>({
+    hasSolarPanels: false,
+    solarPanelCount: 0,
+    hasSkylights: false,
+    skylightCount: 0,
+    hasSatellites: false,
+    satelliteCount: 0,
+  });
 
   // Fetch pricing settings on mount
   useEffect(() => {
@@ -69,6 +78,7 @@ export default function DashboardPage() {
       const pricing = calculatePricing({
         sqFt: roofData.data.roofAreaSqFt,
         perimeterFt: roofData.data.perimeterFt,
+        roofFeatures,
         ...(pricingSettings && {
           costPerSqFt: pricingSettings.costPerSqFt,
           targetProfit: pricingSettings.targetProfit,
@@ -77,6 +87,9 @@ export default function DashboardPage() {
           tier1DealerFee: pricingSettings.tier1DealerFee,
           tier2DealerFee: pricingSettings.tier2DealerFee,
           tier3DealerFee: pricingSettings.tier3DealerFee,
+          solarPanelPricePerUnit: pricingSettings.solarPanelPricePerUnit,
+          skylightPricePerUnit: pricingSettings.skylightPricePerUnit,
+          satellitePricePerUnit: pricingSettings.satellitePricePerUnit,
         }),
       });
 
@@ -86,6 +99,7 @@ export default function DashboardPage() {
         roof: roofData.data,
         pricing,
         propertyValue: propertyValueData.success ? propertyValueData.data : undefined,
+        roofFeatures,
       });
     } catch (err) {
       const message =
@@ -110,6 +124,11 @@ export default function DashboardPage() {
       {/* Address Form */}
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <AddressForm onSubmit={handleAddressSubmit} isLoading={isLoading} />
+
+        {/* Roof Features Section */}
+        <div className="mt-4 border-t border-gray-200 pt-4">
+          <RoofFeaturesForm onChange={setRoofFeatures} disabled={isLoading} />
+        </div>
       </div>
 
       {/* Loading State */}
@@ -227,6 +246,7 @@ export default function DashboardPage() {
           <PricingResults
             pricing={estimate.pricing}
             sqFt={estimate.roof.roofAreaSqFt}
+            roofFeatures={estimate.roofFeatures}
           />
         </div>
       )}

@@ -28,6 +28,10 @@ export interface PricingSettingsData {
   tier1DealerFee: number;
   tier2DealerFee: number;
   tier3DealerFee: number;
+  // Roof feature adjustment prices
+  solarPanelPricePerUnit: number;
+  skylightPricePerUnit: number;
+  satellitePricePerUnit: number;
   updatedAt: Date;
   updatedBy: string | null;
 }
@@ -67,6 +71,16 @@ export interface GeocodeResult {
   aerialViewUrl: string;
 }
 
+// Roof Feature Adjustments (agent inputs)
+export interface RoofFeatureAdjustments {
+  hasSolarPanels: boolean;
+  solarPanelCount: number;
+  hasSkylights: boolean;
+  skylightCount: number;
+  hasSatellites: boolean;
+  satelliteCount: number;
+}
+
 // Pricing Types
 export interface PricingInput {
   sqFt: number;
@@ -79,6 +93,18 @@ export interface PricingInput {
   tier1DealerFee?: number;
   tier2DealerFee?: number;
   tier3DealerFee?: number;
+  // Roof feature adjustments
+  roofFeatures?: RoofFeatureAdjustments;
+  solarPanelPricePerUnit?: number;
+  skylightPricePerUnit?: number;
+  satellitePricePerUnit?: number;
+}
+
+export interface RoofFeatureAdjustmentsOutput {
+  solarPanelTotal: number;
+  skylightTotal: number;
+  satelliteTotal: number;
+  totalAdjustments: number;
 }
 
 export interface PricingOutput {
@@ -97,6 +123,7 @@ export interface PricingOutput {
   fee13: number;
   profit: number;
   gutterTotal: number;
+  roofFeatureAdjustments: RoofFeatureAdjustmentsOutput;
   finalTotal: number;
 }
 
@@ -137,4 +164,5 @@ export interface EstimateData {
   roof: RoofData;
   pricing: PricingOutput;
   propertyValue?: PropertyValue;
+  roofFeatures?: RoofFeatureAdjustments;
 }
