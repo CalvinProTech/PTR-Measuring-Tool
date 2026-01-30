@@ -1,4 +1,4 @@
-import { calculatePricing, DEFAULT_PRICING } from "@/lib/pricing";
+import { calculatePricing, DEFAULT_PRICING, validatePricingInput } from "@/lib/pricing";
 
 describe("calculatePricing", () => {
   describe("with default values", () => {
@@ -16,13 +16,15 @@ describe("calculatePricing", () => {
     it("should calculate correct dealer fee prices", () => {
       const result = calculatePricing({ sqFt: 2000 });
 
-      // 5% dealer: cashPrice / (1 - 0.05)
-      expect(result.pricePerSqFt5Dealer).toBeCloseTo(6.433, 2);
-      expect(result.price5Dealer).toBeCloseTo(12865.5, 0);
+      // Tier 2 (10% dealer fee): cashPrice / (1 - 0.10)
+      // pricePerSqFt5Dealer uses tier2DealerFee which defaults to 0.10
+      expect(result.pricePerSqFt5Dealer).toBeCloseTo(6.79, 2);
+      expect(result.price5Dealer).toBeCloseTo(13580.25, 0);
 
-      // 10% dealer: cashPrice / (1 - 0.10)
-      expect(result.pricePerSqFt10Dealer).toBeCloseTo(6.79, 2);
-      expect(result.price10Dealer).toBeCloseTo(13580.25, 0);
+      // Tier 3 (15% dealer fee): cashPrice / (1 - 0.15)
+      // pricePerSqFt10Dealer uses tier3DealerFee which defaults to 0.15
+      expect(result.pricePerSqFt10Dealer).toBeCloseTo(7.19, 2);
+      expect(result.price10Dealer).toBeCloseTo(14379.08, 0);
     });
 
     it("should calculate correct commissions", () => {
@@ -30,8 +32,10 @@ describe("calculatePricing", () => {
 
       // Commission is 10% of total price
       expect(result.commissionCash).toBeCloseTo(1222.22, 2);
-      expect(result.commission5Dealer).toBeCloseTo(1286.55, 0);
-      expect(result.commission10Dealer).toBeCloseTo(1358.02, 0);
+      // commission5Dealer is 10% of price5Dealer (which uses tier2 = 10% dealer fee)
+      expect(result.commission5Dealer).toBeCloseTo(1358.02, 0);
+      // commission10Dealer is 10% of price10Dealer (which uses tier3 = 15% dealer fee)
+      expect(result.commission10Dealer).toBeCloseTo(1437.91, 0);
     });
 
     it("should calculate 13% fee correctly", () => {
@@ -152,5 +156,120 @@ describe("DEFAULT_PRICING", () => {
     expect(DEFAULT_PRICING.targetProfit).toBe(2000);
     expect(DEFAULT_PRICING.commissionRate).toBe(0.1);
     expect(DEFAULT_PRICING.gutterPricePerFt).toBe(15);
+  });
+
+  it("should have correct tier dealer fees", () => {
+    expect(DEFAULT_PRICING.tier1DealerFee).toBe(0);
+    expect(DEFAULT_PRICING.tier2DealerFee).toBe(0.1);
+    expect(DEFAULT_PRICING.tier3DealerFee).toBe(0.15);
+  });
+});
+
+describe("validatePricingInput", () => {
+  it("should throw error for zero square footage", () => {
+    expect(() => validatePricingInput({ sqFt: 0 })).toThrow(
+      "Square footage must be at least 1"
+    );
+  });
+
+  it("should throw error for negative square footage", () => {
+    expect(() => validatePricingInput({ sqFt: -100 })).toThrow(
+      "Square footage must be at least 1"
+    );
+  });
+
+  it("should throw error for negative cost per sq ft", () => {
+    expect(() => validatePricingInput({ sqFt: 1000, costPerSqFt: -1 })).toThrow(
+      "Cost per sq ft cannot be negative"
+    );
+  });
+
+  it("should throw error for negative target profit", () => {
+    expect(() => validatePricingInput({ sqFt: 1000, targetProfit: -500 })).toThrow(
+      "Target profit cannot be negative"
+    );
+  });
+
+  it("should throw error for commission rate >= 1", () => {
+    expect(() => validatePricingInput({ sqFt: 1000, commissionRate: 1 })).toThrow(
+      "Commission rate must be between 0 and 0.99"
+    );
+  });
+
+  it("should throw error for negative commission rate", () => {
+    expect(() => validatePricingInput({ sqFt: 1000, commissionRate: -0.1 })).toThrow(
+      "Commission rate must be between 0 and 0.99"
+    );
+  });
+
+  it("should throw error for tier fee >= 1", () => {
+    expect(() => validatePricingInput({ sqFt: 1000, tier1DealerFee: 1 })).toThrow(
+      "tier1DealerFee must be between 0 and 0.99"
+    );
+  });
+
+  it("should throw error for negative perimeter", () => {
+    expect(() => validatePricingInput({ sqFt: 1000, perimeterFt: -10 })).toThrow(
+      "Perimeter cannot be negative"
+    );
+  });
+
+  it("should pass for valid input", () => {
+    expect(() => validatePricingInput({ sqFt: 1000 })).not.toThrow();
+    expect(() => validatePricingInput({
+      sqFt: 2000,
+      costPerSqFt: 5,
+      commissionRate: 0.15,
+      tier1DealerFee: 0.05,
+      tier2DealerFee: 0.10,
+      tier3DealerFee: 0.15,
+    })).not.toThrow();
+  });
+});
+
+describe("calculatePricing with custom tier fees", () => {
+  it("should apply tier1DealerFee when set", () => {
+    const result = calculatePricing({
+      sqFt: 2000,
+      tier1DealerFee: 0.05
+    });
+
+    // Tier 1 should now include the 5% fee
+    const baseCashPrice = (2000 * 4.5 + 2000) / 2000 / (1 - 0.1);
+    const expectedTier1Price = baseCashPrice / (1 - 0.05);
+
+    expect(result.priceCash).toBeCloseTo(expectedTier1Price * 2000, 0);
+  });
+
+  it("should apply custom tier2DealerFee", () => {
+    const result = calculatePricing({
+      sqFt: 2000,
+      tier2DealerFee: 0.12
+    });
+
+    // Tier 2 should use 12% instead of default 10%
+    const baseCashPrice = (2000 * 4.5 + 2000) / 2000 / (1 - 0.1);
+    const expectedTier2Price = baseCashPrice / (1 - 0.12);
+
+    expect(result.pricePerSqFt5Dealer).toBeCloseTo(expectedTier2Price, 2);
+  });
+
+  it("should apply custom tier3DealerFee", () => {
+    const result = calculatePricing({
+      sqFt: 2000,
+      tier3DealerFee: 0.20
+    });
+
+    // Tier 3 should use 20% instead of default 15%
+    const baseCashPrice = (2000 * 4.5 + 2000) / 2000 / (1 - 0.1);
+    const expectedTier3Price = baseCashPrice / (1 - 0.20);
+
+    expect(result.pricePerSqFt10Dealer).toBeCloseTo(expectedTier3Price, 2);
+  });
+
+  it("should throw error for invalid input", () => {
+    expect(() => calculatePricing({ sqFt: 0 })).toThrow();
+    expect(() => calculatePricing({ sqFt: -100 })).toThrow();
+    expect(() => calculatePricing({ sqFt: 1000, commissionRate: 1 })).toThrow();
   });
 });

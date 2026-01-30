@@ -1,3 +1,43 @@
+// User Role Types
+export type UserRole = "owner" | "agent";
+
+export interface UserData {
+  id: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  imageUrl: string;
+  role: UserRole;
+  createdAt: number;
+  lastSignInAt: number | null;
+}
+
+export interface UsersResponse {
+  success: boolean;
+  data?: UserData[];
+  error?: string;
+}
+
+// Pricing Settings Types
+export interface PricingSettingsData {
+  id: string;
+  costPerSqFt: number;
+  targetProfit: number;
+  commissionRate: number;
+  gutterPricePerFt: number;
+  tier1DealerFee: number;
+  tier2DealerFee: number;
+  tier3DealerFee: number;
+  updatedAt: Date;
+  updatedBy: string | null;
+}
+
+export interface PricingSettingsResponse {
+  success: boolean;
+  data?: PricingSettingsData;
+  error?: string;
+}
+
 // Roof Analysis Types
 export interface RoofSegment {
   areaMeters2: number;
@@ -36,6 +76,9 @@ export interface PricingInput {
   includeGutters?: boolean;
   perimeterFt?: number;
   gutterPricePerFt?: number;
+  tier1DealerFee?: number;
+  tier2DealerFee?: number;
+  tier3DealerFee?: number;
 }
 
 export interface PricingOutput {

@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
+import { checkRateLimit, incrementRateLimit, getRateLimitStatus } from "@/lib/rate-limiter";
 import type { PropertyValueResponse } from "@/types";
 
 const RENTCAST_API_KEY = process.env.RENTCAST_API_KEY;
 const RENTCAST_API_BASE = "https://api.rentcast.io/v1";
+const RENTCAST_RATE_LIMIT = 50; // Max requests per month
 
 export async function GET(
   request: Request
@@ -15,6 +17,20 @@ export async function GET(
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
         { status: 401 }
+      );
+    }
+
+    // Check rate limit before making API call
+    const rateLimit = checkRateLimit("rentcast", RENTCAST_RATE_LIMIT);
+    if (!rateLimit.allowed) {
+      const status = getRateLimitStatus("rentcast", RENTCAST_RATE_LIMIT);
+      console.warn(`Rentcast rate limit exceeded: ${status.count}/${status.limit} requests used`);
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Monthly API limit reached (${RENTCAST_RATE_LIMIT} requests). Resets ${rateLimit.resetAt.toLocaleDateString()}.`
+        },
+        { status: 429 }
       );
     }
 
@@ -56,6 +72,11 @@ export async function GET(
     }
 
     const data = await response.json();
+
+    // Increment rate limit counter after successful API call
+    incrementRateLimit("rentcast");
+    const status = getRateLimitStatus("rentcast", RENTCAST_RATE_LIMIT);
+    console.log(`Rentcast API call successful. Usage: ${status.count}/${status.limit} requests`);
 
     return NextResponse.json({
       success: true,
