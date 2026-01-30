@@ -17,6 +17,10 @@ const pricingSettingsSchema = z.object({
   tier1DealerFee: z.number().min(0, "Tier 1 fee must be non-negative").max(MAX_RATE, `Tier 1 fee must be less than ${MAX_RATE}`),
   tier2DealerFee: z.number().min(0, "Tier 2 fee must be non-negative").max(MAX_RATE, `Tier 2 fee must be less than ${MAX_RATE}`),
   tier3DealerFee: z.number().min(0, "Tier 3 fee must be non-negative").max(MAX_RATE, `Tier 3 fee must be less than ${MAX_RATE}`),
+  // Roof feature adjustment prices
+  solarPanelPricePerUnit: z.number().min(0, "Solar panel price must be non-negative").max(5000, "Solar panel price seems unreasonably high"),
+  skylightPricePerUnit: z.number().min(0, "Skylight price must be non-negative").max(5000, "Skylight price seems unreasonably high"),
+  satellitePricePerUnit: z.number().min(0, "Satellite price must be non-negative").max(2000, "Satellite price seems unreasonably high"),
 });
 
 /**
@@ -48,6 +52,9 @@ export async function GET() {
           tier1DealerFee: 0,
           tier2DealerFee: 0.1,
           tier3DealerFee: 0.15,
+          solarPanelPricePerUnit: 150.0,
+          skylightPricePerUnit: 200.0,
+          satellitePricePerUnit: 75.0,
         },
       });
     }

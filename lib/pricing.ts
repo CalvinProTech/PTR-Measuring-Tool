@@ -11,6 +11,10 @@ export const DEFAULT_PRICING = {
   tier1DealerFee: 0,      // Cash - no fee
   tier2DealerFee: 0.1,    // 10%
   tier3DealerFee: 0.15,   // 15%
+  // Roof feature adjustment prices (per unit)
+  solarPanelPricePerUnit: 150.0,
+  skylightPricePerUnit: 200.0,
+  satellitePricePerUnit: 75.0,
 } as const;
 
 /** Minimum valid square footage */
@@ -58,6 +62,30 @@ export function validatePricingInput(input: PricingInput): void {
   if (input.gutterPricePerFt !== undefined && input.gutterPricePerFt < 0) {
     throw new Error(`Gutter price cannot be negative. Received: ${input.gutterPricePerFt}`);
   }
+
+  // Validate roof feature adjustment prices
+  if (input.solarPanelPricePerUnit !== undefined && input.solarPanelPricePerUnit < 0) {
+    throw new Error(`Solar panel price cannot be negative. Received: ${input.solarPanelPricePerUnit}`);
+  }
+  if (input.skylightPricePerUnit !== undefined && input.skylightPricePerUnit < 0) {
+    throw new Error(`Skylight price cannot be negative. Received: ${input.skylightPricePerUnit}`);
+  }
+  if (input.satellitePricePerUnit !== undefined && input.satellitePricePerUnit < 0) {
+    throw new Error(`Satellite price cannot be negative. Received: ${input.satellitePricePerUnit}`);
+  }
+
+  // Validate roof feature counts
+  if (input.roofFeatures) {
+    if (input.roofFeatures.solarPanelCount < 0) {
+      throw new Error(`Solar panel count cannot be negative`);
+    }
+    if (input.roofFeatures.skylightCount < 0) {
+      throw new Error(`Skylight count cannot be negative`);
+    }
+    if (input.roofFeatures.satelliteCount < 0) {
+      throw new Error(`Satellite count cannot be negative`);
+    }
+  }
 }
 
 /**
@@ -85,6 +113,10 @@ export function calculatePricing(input: PricingInput): PricingOutput {
     tier1DealerFee = DEFAULT_PRICING.tier1DealerFee,
     tier2DealerFee = DEFAULT_PRICING.tier2DealerFee,
     tier3DealerFee = DEFAULT_PRICING.tier3DealerFee,
+    roofFeatures,
+    solarPanelPricePerUnit = DEFAULT_PRICING.solarPanelPricePerUnit,
+    skylightPricePerUnit = DEFAULT_PRICING.skylightPricePerUnit,
+    satellitePricePerUnit = DEFAULT_PRICING.satellitePricePerUnit,
   } = input;
 
   // Base cost
@@ -120,8 +152,20 @@ export function calculatePricing(input: PricingInput): PricingOutput {
   // Gutter calculation
   const gutterTotal = includeGutters ? perimeterFt * gutterPricePerFt : 0;
 
-  // Final total (using cash price as base)
-  const finalTotal = priceCash + gutterTotal;
+  // Roof feature adjustments
+  const solarPanelTotal = roofFeatures?.hasSolarPanels
+    ? roofFeatures.solarPanelCount * solarPanelPricePerUnit
+    : 0;
+  const skylightTotal = roofFeatures?.hasSkylights
+    ? roofFeatures.skylightCount * skylightPricePerUnit
+    : 0;
+  const satelliteTotal = roofFeatures?.hasSatellites
+    ? roofFeatures.satelliteCount * satellitePricePerUnit
+    : 0;
+  const totalAdjustments = solarPanelTotal + skylightTotal + satelliteTotal;
+
+  // Final total (using cash price as base + gutters + adjustments)
+  const finalTotal = priceCash + gutterTotal + totalAdjustments;
 
   return {
     cost,
@@ -139,6 +183,12 @@ export function calculatePricing(input: PricingInput): PricingOutput {
     fee13,
     profit: targetProfit,
     gutterTotal,
+    roofFeatureAdjustments: {
+      solarPanelTotal,
+      skylightTotal,
+      satelliteTotal,
+      totalAdjustments,
+    },
     finalTotal,
   };
 }

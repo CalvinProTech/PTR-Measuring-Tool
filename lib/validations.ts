@@ -33,6 +33,20 @@ export const roofAnalysisParamsSchema = z.object({
 });
 
 /**
+ * Roof feature adjustments validation (agent inputs)
+ */
+export const roofFeatureAdjustmentsSchema = z.object({
+  hasSolarPanels: z.boolean(),
+  solarPanelCount: z.number().int().min(0).max(100),
+  hasSkylights: z.boolean(),
+  skylightCount: z.number().int().min(0).max(50),
+  hasSatellites: z.boolean(),
+  satelliteCount: z.number().int().min(0).max(20),
+});
+
+export type RoofFeatureAdjustmentsInput = z.infer<typeof roofFeatureAdjustmentsSchema>;
+
+/**
  * Pricing input validation
  */
 export const pricingInputSchema = z.object({
@@ -43,4 +57,8 @@ export const pricingInputSchema = z.object({
   includeGutters: z.boolean().optional(),
   perimeterFt: z.number().nonnegative().optional(),
   gutterPricePerFt: z.number().positive().optional(),
+  roofFeatures: roofFeatureAdjustmentsSchema.optional(),
+  solarPanelPricePerUnit: z.number().nonnegative().optional(),
+  skylightPricePerUnit: z.number().nonnegative().optional(),
+  satellitePricePerUnit: z.number().nonnegative().optional(),
 });

@@ -20,6 +20,9 @@ export function PricingSettingsForm({
     tier1DealerFee: initialSettings.tier1DealerFee * 100,
     tier2DealerFee: initialSettings.tier2DealerFee * 100,
     tier3DealerFee: initialSettings.tier3DealerFee * 100,
+    solarPanelPricePerUnit: initialSettings.solarPanelPricePerUnit,
+    skylightPricePerUnit: initialSettings.skylightPricePerUnit,
+    satellitePricePerUnit: initialSettings.satellitePricePerUnit,
   });
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -46,6 +49,9 @@ export function PricingSettingsForm({
         tier1DealerFee: settings.tier1DealerFee / 100,
         tier2DealerFee: settings.tier2DealerFee / 100,
         tier3DealerFee: settings.tier3DealerFee / 100,
+        solarPanelPricePerUnit: settings.solarPanelPricePerUnit,
+        skylightPricePerUnit: settings.skylightPricePerUnit,
+        satellitePricePerUnit: settings.satellitePricePerUnit,
       });
       setMessage({ type: "success", text: "Settings saved successfully!" });
     } catch {
@@ -175,6 +181,61 @@ export function PricingSettingsForm({
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
             />
             <p className="mt-1 text-xs text-gray-500">Default: 15%</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Roof Feature Adjustments Section */}
+      <div>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Roof Feature Adjustments</h3>
+        <p className="text-sm text-gray-500 mb-4">
+          Set the additional cost per unit for roof features that require removal/reinstallation during roofing work.
+        </p>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div>
+            <label htmlFor="solarPanelPricePerUnit" className="block text-sm font-medium text-gray-700">
+              Solar Panel ($/unit)
+            </label>
+            <input
+              type="number"
+              id="solarPanelPricePerUnit"
+              step="1"
+              min="0"
+              value={settings.solarPanelPricePerUnit}
+              onChange={(e) => handleChange("solarPanelPricePerUnit", e.target.value)}
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            />
+            <p className="mt-1 text-xs text-gray-500">Default: $150</p>
+          </div>
+          <div>
+            <label htmlFor="skylightPricePerUnit" className="block text-sm font-medium text-gray-700">
+              Skylight ($/unit)
+            </label>
+            <input
+              type="number"
+              id="skylightPricePerUnit"
+              step="1"
+              min="0"
+              value={settings.skylightPricePerUnit}
+              onChange={(e) => handleChange("skylightPricePerUnit", e.target.value)}
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            />
+            <p className="mt-1 text-xs text-gray-500">Default: $200</p>
+          </div>
+          <div>
+            <label htmlFor="satellitePricePerUnit" className="block text-sm font-medium text-gray-700">
+              Satellite Dish ($/unit)
+            </label>
+            <input
+              type="number"
+              id="satellitePricePerUnit"
+              step="1"
+              min="0"
+              value={settings.satellitePricePerUnit}
+              onChange={(e) => handleChange("satellitePricePerUnit", e.target.value)}
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            />
+            <p className="mt-1 text-xs text-gray-500">Default: $75</p>
           </div>
         </div>
       </div>

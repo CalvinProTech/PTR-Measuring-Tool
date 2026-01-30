@@ -16,6 +16,10 @@ model PricingSettings {
   tier1DealerFee   Float    @default(0)     // Cash - no fee
   tier2DealerFee   Float    @default(0.10)  // 10%
   tier3DealerFee   Float    @default(0.15)  // 15%
+  // Roof feature adjustment prices (per unit)
+  solarPanelPricePerUnit Float @default(150.0)
+  skylightPricePerUnit   Float @default(200.0)
+  satellitePricePerUnit  Float @default(75.0)
   updatedAt        DateTime @updatedAt
   updatedBy        String?  // Clerk user ID
 }
