@@ -15,7 +15,6 @@ export function PricingSettingsForm({
   const [settings, setSettings] = useState({
     costPerSqFt: initialSettings.costPerSqFt,
     targetProfit: initialSettings.targetProfit,
-    commissionRate: initialSettings.commissionRate * 100, // Convert to percentage for display
     gutterPricePerFt: initialSettings.gutterPricePerFt,
     tier1DealerFee: initialSettings.tier1DealerFee * 100,
     tier2DealerFee: initialSettings.tier2DealerFee * 100,
@@ -44,7 +43,6 @@ export function PricingSettingsForm({
       await onSave({
         costPerSqFt: settings.costPerSqFt,
         targetProfit: settings.targetProfit,
-        commissionRate: settings.commissionRate / 100, // Convert back to decimal
         gutterPricePerFt: settings.gutterPricePerFt,
         tier1DealerFee: settings.tier1DealerFee / 100,
         tier2DealerFee: settings.tier2DealerFee / 100,
@@ -63,9 +61,35 @@ export function PricingSettingsForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      {/* Base Pricing Section */}
+      {/* Target Profit - Main Control */}
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Base Pricing</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">Target Profit</h3>
+        <p className="text-sm text-gray-500 mb-4">
+          This is the main control for adjusting all prices up or down. Increasing target profit raises all tier prices proportionally.
+        </p>
+        <div className="max-w-xs">
+          <label htmlFor="targetProfit" className="block text-sm font-medium text-gray-700">
+            Target Profit ($)
+          </label>
+          <input
+            type="number"
+            id="targetProfit"
+            step="100"
+            min="0"
+            value={settings.targetProfit}
+            onChange={(e) => handleChange("targetProfit", e.target.value)}
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-lg shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+          />
+          <p className="mt-1 text-xs text-gray-500">Default: $2,000</p>
+        </div>
+      </div>
+
+      {/* Base Cost Settings */}
+      <div>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">Base Costs</h3>
+        <p className="text-sm text-gray-500 mb-4">
+          Adjust if material or labor costs change. Commission rate is fixed at 30% (agent 10% + owner 10% + lead 10%).
+        </p>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="costPerSqFt" className="block text-sm font-medium text-gray-700">
@@ -80,35 +104,7 @@ export function PricingSettingsForm({
               onChange={(e) => handleChange("costPerSqFt", e.target.value)}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
             />
-          </div>
-          <div>
-            <label htmlFor="targetProfit" className="block text-sm font-medium text-gray-700">
-              Target Profit ($)
-            </label>
-            <input
-              type="number"
-              id="targetProfit"
-              step="100"
-              min="0"
-              value={settings.targetProfit}
-              onChange={(e) => handleChange("targetProfit", e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-            />
-          </div>
-          <div>
-            <label htmlFor="commissionRate" className="block text-sm font-medium text-gray-700">
-              Commission Rate (%)
-            </label>
-            <input
-              type="number"
-              id="commissionRate"
-              step="0.5"
-              min="0"
-              max="100"
-              value={settings.commissionRate}
-              onChange={(e) => handleChange("commissionRate", e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-            />
+            <p className="mt-1 text-xs text-gray-500">Default: $5.00</p>
           </div>
           <div>
             <label htmlFor="gutterPricePerFt" className="block text-sm font-medium text-gray-700">
@@ -123,64 +119,65 @@ export function PricingSettingsForm({
               onChange={(e) => handleChange("gutterPricePerFt", e.target.value)}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
             />
+            <p className="mt-1 text-xs text-gray-500">Default: $15.00</p>
           </div>
         </div>
       </div>
 
       {/* Tier Pricing Section */}
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Tier Dealer Fees</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">Tier Dealer Fees</h3>
         <p className="text-sm text-gray-500 mb-4">
-          Set the dealer fee percentage for each pricing tier. These fees are added on top of the base cash price.
+          Dealer fees are added to the base 30% commission. Total fee = 30% + dealer fee.
         </p>
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
             <label htmlFor="tier1DealerFee" className="block text-sm font-medium text-gray-700">
-              Tier 1 (Low) Fee (%)
+              Tier 1 - Cash (%)
             </label>
             <input
               type="number"
               id="tier1DealerFee"
               step="0.5"
               min="0"
-              max="100"
+              max="69"
               value={settings.tier1DealerFee}
               onChange={(e) => handleChange("tier1DealerFee", e.target.value)}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
             />
-            <p className="mt-1 text-xs text-gray-500">Usually 0% (cash price)</p>
+            <p className="mt-1 text-xs text-gray-500">Default: 0% (total: 30%)</p>
           </div>
           <div>
             <label htmlFor="tier2DealerFee" className="block text-sm font-medium text-gray-700">
-              Tier 2 (Middle) Fee (%)
+              Tier 2 - Standard (%)
             </label>
             <input
               type="number"
               id="tier2DealerFee"
               step="0.5"
               min="0"
-              max="100"
+              max="69"
               value={settings.tier2DealerFee}
               onChange={(e) => handleChange("tier2DealerFee", e.target.value)}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
             />
-            <p className="mt-1 text-xs text-gray-500">Default: 10%</p>
+            <p className="mt-1 text-xs text-gray-500">Default: 10% (total: 40%)</p>
           </div>
           <div>
             <label htmlFor="tier3DealerFee" className="block text-sm font-medium text-gray-700">
-              Tier 3 (High) Fee (%)
+              Tier 3 - Premium (%)
             </label>
             <input
               type="number"
               id="tier3DealerFee"
               step="0.5"
               min="0"
-              max="100"
+              max="69"
               value={settings.tier3DealerFee}
               onChange={(e) => handleChange("tier3DealerFee", e.target.value)}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
             />
-            <p className="mt-1 text-xs text-gray-500">Default: 15%</p>
+            <p className="mt-1 text-xs text-gray-500">Default: 15% (total: 45%)</p>
           </div>
         </div>
       </div>

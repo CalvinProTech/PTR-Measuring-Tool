@@ -23,7 +23,6 @@ export interface PricingSettingsData {
   id: string;
   costPerSqFt: number;
   targetProfit: number;
-  commissionRate: number;
   gutterPricePerFt: number;
   tier1DealerFee: number;
   tier2DealerFee: number;
@@ -86,7 +85,6 @@ export interface PricingInput {
   sqFt: number;
   costPerSqFt?: number;
   targetProfit?: number;
-  commissionRate?: number;
   includeGutters?: boolean;
   perimeterFt?: number;
   gutterPricePerFt?: number;

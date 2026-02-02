@@ -82,7 +82,6 @@ export default function DashboardPage() {
         ...(pricingSettings && {
           costPerSqFt: pricingSettings.costPerSqFt,
           targetProfit: pricingSettings.targetProfit,
-          commissionRate: pricingSettings.commissionRate,
           gutterPricePerFt: pricingSettings.gutterPricePerFt,
           tier1DealerFee: pricingSettings.tier1DealerFee,
           tier2DealerFee: pricingSettings.tier2DealerFee,
