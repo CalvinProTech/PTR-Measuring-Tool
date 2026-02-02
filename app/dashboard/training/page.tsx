@@ -329,9 +329,31 @@ export default function TrainingPage() {
                   Your browser does not support the audio element.
                 </audio>
               </div>
+            ) : selectedDoc.type === "docx" || selectedDoc.type === "xlsx" || selectedDoc.type === "pptx" ? (
+              <div className="flex h-full flex-col items-center justify-center gap-6">
+                <div className="flex h-32 w-32 items-center justify-center rounded-full bg-gray-100">
+                  {typeIcons[selectedDoc.type]}
+                </div>
+                <h3 className="text-xl font-medium text-gray-900">
+                  {selectedDoc.name}
+                </h3>
+                <p className="text-gray-500">
+                  This file type cannot be previewed in the browser.
+                </p>
+                <a
+                  href={getFileUrl(selectedDoc.filename)}
+                  download
+                  className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700"
+                >
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  Download File
+                </a>
+              </div>
             ) : (
               <iframe
-                src={getViewerUrl(selectedDoc)}
+                src={getFileUrl(selectedDoc.filename)}
                 className="h-full w-full rounded-lg border-0 bg-white"
                 title={selectedDoc.name}
               />
