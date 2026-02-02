@@ -9,13 +9,12 @@ datasource db {
 
 model PricingSettings {
   id               String   @id @default(cuid())
-  costPerSqFt      Float    @default(4.5)
-  targetProfit     Float    @default(2000)
-  commissionRate   Float    @default(0.1)
+  costPerSqFt      Float    @default(5.0)   // Base cost per sq ft
+  targetProfit     Float    @default(2000)  // Main pricing adjustment knob
   gutterPricePerFt Float    @default(15.0)
-  tier1DealerFee   Float    @default(0)     // Cash - no fee
-  tier2DealerFee   Float    @default(0.10)  // 10%
-  tier3DealerFee   Float    @default(0.15)  // 15%
+  tier1DealerFee   Float    @default(0)     // Cash - no dealer fee (total 30%)
+  tier2DealerFee   Float    @default(0.10)  // 10% dealer fee (total 40%)
+  tier3DealerFee   Float    @default(0.15)  // 15% dealer fee (total 45%)
   // Roof feature adjustment prices (per unit)
   solarPanelPricePerUnit Float @default(150.0)
   skylightPricePerUnit   Float @default(200.0)

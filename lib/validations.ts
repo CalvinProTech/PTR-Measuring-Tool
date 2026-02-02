@@ -48,15 +48,18 @@ export type RoofFeatureAdjustmentsInput = z.infer<typeof roofFeatureAdjustmentsS
 
 /**
  * Pricing input validation
+ * Note: Commission rate is fixed at 30% (agent 10% + owner 10% + lead 10%)
  */
 export const pricingInputSchema = z.object({
   sqFt: z.number().positive("Square footage must be positive"),
   costPerSqFt: z.number().positive().optional(),
   targetProfit: z.number().nonnegative().optional(),
-  commissionRate: z.number().min(0).max(1).optional(),
   includeGutters: z.boolean().optional(),
   perimeterFt: z.number().nonnegative().optional(),
   gutterPricePerFt: z.number().positive().optional(),
+  tier1DealerFee: z.number().min(0).max(0.69).optional(),
+  tier2DealerFee: z.number().min(0).max(0.69).optional(),
+  tier3DealerFee: z.number().min(0).max(0.69).optional(),
   roofFeatures: roofFeatureAdjustmentsSchema.optional(),
   solarPanelPricePerUnit: z.number().nonnegative().optional(),
   skylightPricePerUnit: z.number().nonnegative().optional(),

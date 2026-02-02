@@ -6,17 +6,16 @@ import { z } from "zod";
 
 const LOG_PREFIX = "[api/settings/pricing]";
 
-/** Maximum allowed rate to prevent division by zero in pricing calculations */
-const MAX_RATE = 0.99;
+/** Maximum dealer fee (base commission is 30%, so max dealer fee is 69% to stay under 100%) */
+const MAX_DEALER_FEE = 0.69;
 
 const pricingSettingsSchema = z.object({
   costPerSqFt: z.number().min(0, "Cost per sq ft must be non-negative").max(1000, "Cost per sq ft seems unreasonably high"),
   targetProfit: z.number().min(0, "Target profit must be non-negative").max(100000, "Target profit seems unreasonably high"),
-  commissionRate: z.number().min(0, "Commission rate must be non-negative").max(MAX_RATE, `Commission rate must be less than ${MAX_RATE}`),
   gutterPricePerFt: z.number().min(0, "Gutter price must be non-negative").max(500, "Gutter price seems unreasonably high"),
-  tier1DealerFee: z.number().min(0, "Tier 1 fee must be non-negative").max(MAX_RATE, `Tier 1 fee must be less than ${MAX_RATE}`),
-  tier2DealerFee: z.number().min(0, "Tier 2 fee must be non-negative").max(MAX_RATE, `Tier 2 fee must be less than ${MAX_RATE}`),
-  tier3DealerFee: z.number().min(0, "Tier 3 fee must be non-negative").max(MAX_RATE, `Tier 3 fee must be less than ${MAX_RATE}`),
+  tier1DealerFee: z.number().min(0, "Tier 1 fee must be non-negative").max(MAX_DEALER_FEE, `Tier 1 fee must be less than ${MAX_DEALER_FEE * 100}%`),
+  tier2DealerFee: z.number().min(0, "Tier 2 fee must be non-negative").max(MAX_DEALER_FEE, `Tier 2 fee must be less than ${MAX_DEALER_FEE * 100}%`),
+  tier3DealerFee: z.number().min(0, "Tier 3 fee must be non-negative").max(MAX_DEALER_FEE, `Tier 3 fee must be less than ${MAX_DEALER_FEE * 100}%`),
   // Roof feature adjustment prices
   solarPanelPricePerUnit: z.number().min(0, "Solar panel price must be non-negative").max(5000, "Solar panel price seems unreasonably high"),
   skylightPricePerUnit: z.number().min(0, "Skylight price must be non-negative").max(5000, "Skylight price seems unreasonably high"),
@@ -45,9 +44,8 @@ export async function GET() {
       // Create default settings
       settings = await prisma.pricingSettings.create({
         data: {
-          costPerSqFt: 4.5,
+          costPerSqFt: 5.0,
           targetProfit: 2000,
-          commissionRate: 0.1,
           gutterPricePerFt: 15.0,
           tier1DealerFee: 0,
           tier2DealerFee: 0.1,
