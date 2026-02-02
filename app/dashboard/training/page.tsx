@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, ReactNode } from "react";
+import Image from "next/image";
 
 interface TrainingDocument {
   id: string;
@@ -171,7 +172,7 @@ const categories = [
   "Training Calls",
 ];
 
-const typeIcons: Record<string, JSX.Element> = {
+const typeIcons: Record<string, ReactNode> = {
   docx: (
     <svg className="h-6 w-6 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h6v6h6v10H6z"/>
@@ -304,11 +305,12 @@ export default function TrainingPage() {
           {/* Content */}
           <div className="flex-1 overflow-hidden bg-gray-100 p-4">
             {selectedDoc.type === "png" ? (
-              <div className="flex h-full items-center justify-center">
-                <img
+              <div className="relative h-full w-full">
+                <Image
                   src={getFileUrl(selectedDoc.filename)}
                   alt={selectedDoc.name}
-                  className="max-h-full max-w-full object-contain"
+                  fill
+                  className="object-contain"
                 />
               </div>
             ) : selectedDoc.type === "mp3" ? (
