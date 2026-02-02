@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"C:\\\\Users\\\\dpatel\\\\Downloads\\\\drive-download-20260202T141519Z-3-001\")",
+      "Bash(dir \"C:\\\\Users\\\\dpatel\\\\Downloads\\\\drive-download-20260202T141519Z-3-001\\\\Informational-Lessons\")",
+      "Bash(dir:*)",
+      "Bash(dir \"C:\\\\Users\\\\dpatel\\\\Downloads\\\\drive-download-20260202T141519Z-3-001\\\\Training Calls\")",
+      "Bash(copy \"C:\\\\Users\\\\dpatel\\\\Downloads\\\\drive-download-20260202T141519Z-3-001\\\\*.docx\" \"C:\\\\Users\\\\dpatel\\\\source\\\\repos\\\\protech-roofing-app\\\\public\\\\training\"\" && copy \"C:UsersdpatelDownloadsdrive-download-20260202T141519Z-3-001*.xlsx\" \"C:Usersdpatelsourcereposprotech-roofing-apppublictraining\"\")",
+      "Bash(copy \"C:\\\\Users\\\\dpatel\\\\Downloads\\\\drive-download-20260202T141519Z-3-001\\\\*.pptx\" \"C:\\\\Users\\\\dpatel\\\\source\\\\repos\\\\protech-roofing-app\\\\public\\\\training\"\" && copy \"C:UsersdpatelDownloadsdrive-download-20260202T141519Z-3-001*.png\" \"C:Usersdpatelsourcereposprotech-roofing-apppublictraining\"\")",
+      "Bash(powershell -Command:*)",
+      "Bash(npm run lint)",
+      "Bash(./node_modules/.bin/next lint:*)"
+    ]
+  }
+}

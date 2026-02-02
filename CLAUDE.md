@@ -39,8 +39,20 @@ Role assignment is done manually via Clerk Dashboard → Users → Select user �
 
 - `app/(auth)/` - Clerk sign-in/sign-up pages (public)
 - `app/dashboard/` - Protected main estimation interface
+- `app/dashboard/training/` - Training materials (all authenticated users)
 - `app/dashboard/settings/` - Pricing settings (owner only)
 - `middleware.ts` - Clerk auth protecting all routes except landing, auth, and API webhooks
+
+### Training Materials (`public/training/`)
+
+Training documents are stored in the public folder and viewable at `/dashboard/training`. Both owners and agents have access.
+
+- Office documents (.docx, .xlsx, .pptx) use Microsoft Office Online Viewer for in-browser viewing
+- Images display directly
+- Audio files use HTML5 audio player
+- All documents can be downloaded
+
+To add new training documents, place them in `public/training/` and update the `trainingDocuments` array in `app/dashboard/training/page.tsx`.
 
 ### API Routes (`app/api/`)
 
