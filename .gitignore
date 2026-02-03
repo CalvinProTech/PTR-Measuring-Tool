@@ -43,6 +43,11 @@ next-env.d.ts
 .idea
 .vscode
 
+# AI Tools
+.agents
+.cursor
+.opencode
+
 /lib/generated/prisma
 
 # Large training files (exceed GitHub's 100MB limit)

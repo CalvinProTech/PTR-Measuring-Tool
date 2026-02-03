@@ -217,19 +217,6 @@ export default function TrainingPage() {
     return `/training/${encodeURIComponent(filename).replace(/%2F/g, "/")}`;
   };
 
-  const getViewerUrl = (doc: TrainingDocument) => {
-    if (typeof window === "undefined") return "";
-
-    const fileUrl = `${window.location.origin}${getFileUrl(doc.filename)}`;
-    const encodedUrl = encodeURIComponent(fileUrl);
-
-    if (doc.type === "docx" || doc.type === "xlsx" || doc.type === "pptx") {
-      return `https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`;
-    }
-
-    return getFileUrl(doc.filename);
-  };
-
   const handleView = (doc: TrainingDocument) => {
     setSelectedDoc(doc);
   };

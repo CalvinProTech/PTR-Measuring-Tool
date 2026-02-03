@@ -1,21 +1,50 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { LoadingSpinner } from "./LoadingSpinner";
+import { AddressDropdown } from "./AddressDropdown";
+import type { StoredSearch, StoredSavedAddress, GeocodeResult } from "@/types";
 
 interface AddressFormProps {
   onSubmit: (address: string) => Promise<void>;
+  onSelectFromDropdown?: (geocode: GeocodeResult) => void;
   isLoading?: boolean;
+  recentSearches?: StoredSearch[];
+  savedAddresses?: StoredSavedAddress[];
+  onClearRecents?: () => void;
+  onRemoveSaved?: (id: string) => void;
 }
 
-export function AddressForm({ onSubmit, isLoading = false }: AddressFormProps) {
+export function AddressForm({
+  onSubmit,
+  onSelectFromDropdown,
+  isLoading = false,
+  recentSearches = [],
+  savedAddresses = [],
+  onClearRecents,
+  onRemoveSaved,
+}: AddressFormProps) {
   const [address, setAddress] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Handle clicks outside to close dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setShowDropdown(false);
 
     const trimmedAddress = address.trim();
 
@@ -31,10 +60,54 @@ export function AddressForm({ onSubmit, isLoading = false }: AddressFormProps) {
     }
   };
 
+  const handleSelectRecent = (search: StoredSearch) => {
+    setAddress(search.formattedAddress);
+    setShowDropdown(false);
+    setError(null);
+
+    // Convert StoredSearch to GeocodeResult and call the handler
+    if (onSelectFromDropdown) {
+      const geocode: GeocodeResult = {
+        formattedAddress: search.formattedAddress,
+        latitude: search.latitude,
+        longitude: search.longitude,
+        city: search.city,
+        state: search.state,
+        zipCode: search.zipCode,
+        streetViewUrl: search.streetViewUrl,
+        aerialViewUrl: search.aerialViewUrl,
+      };
+      onSelectFromDropdown(geocode);
+    }
+  };
+
+  const handleSelectSaved = (saved: StoredSavedAddress) => {
+    setAddress(saved.formattedAddress);
+    setShowDropdown(false);
+    setError(null);
+
+    // Convert StoredSavedAddress to GeocodeResult and call the handler
+    if (onSelectFromDropdown) {
+      const geocode: GeocodeResult = {
+        formattedAddress: saved.formattedAddress,
+        latitude: saved.latitude,
+        longitude: saved.longitude,
+        city: saved.city,
+        state: saved.state,
+        zipCode: saved.zipCode,
+        streetViewUrl: saved.streetViewUrl,
+        aerialViewUrl: saved.aerialViewUrl,
+      };
+      onSelectFromDropdown(geocode);
+    }
+  };
+
+  const hasDropdownContent = recentSearches.length > 0 || savedAddresses.length > 0;
+
   return (
     <form onSubmit={handleSubmit} className="w-full">
       <div className="flex flex-col gap-4 sm:flex-row">
-        <div className="flex-1">
+        <div className="relative flex-1" ref={containerRef}>
           <label htmlFor="address" className="sr-only">
             Property Address
           </label>
@@ -44,8 +117,10 @@ export function AddressForm({ onSubmit, isLoading = false }: AddressFormProps) {
             name="address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
+            onFocus={() => hasDropdownContent && setShowDropdown(true)}
             placeholder="Enter property address (e.g., 123 Main St, Tampa, FL 33601)"
             disabled={isLoading}
+            autoComplete="off"
             className={cn(
               "block w-full rounded-lg border px-4 py-3 text-gray-900 shadow-sm",
               "placeholder:text-gray-400",
@@ -61,6 +136,17 @@ export function AddressForm({ onSubmit, isLoading = false }: AddressFormProps) {
               {error}
             </p>
           )}
+
+          {/* Dropdown */}
+          <AddressDropdown
+            recentSearches={recentSearches}
+            savedAddresses={savedAddresses}
+            onSelectRecent={handleSelectRecent}
+            onSelectSaved={handleSelectSaved}
+            onClearRecents={onClearRecents || (() => {})}
+            onRemoveSaved={onRemoveSaved || (() => {})}
+            isVisible={showDropdown && !isLoading}
+          />
         </div>
 
         <button

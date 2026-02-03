@@ -164,3 +164,28 @@ export interface EstimateData {
   propertyValue?: PropertyValue;
   roofFeatures?: RoofFeatureAdjustments;
 }
+
+// Local Storage Types
+export interface StoredSearch {
+  id: string;
+  formattedAddress: string;
+  latitude: number;
+  longitude: number;
+  city: string;
+  state: string;
+  zipCode: string;
+  streetViewUrl: string;
+  aerialViewUrl: string;
+  searchedAt: number;
+}
+
+export interface StoredSavedAddress extends StoredSearch {
+  nickname?: string;
+  savedAt: number;
+}
+
+export interface CachedEstimate {
+  geocode: GeocodeResult;
+  roof: RoofData;
+  cachedAt: number;
+}
