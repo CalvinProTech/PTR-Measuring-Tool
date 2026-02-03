@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -144,11 +145,13 @@ export default function UsersPage() {
                 <tr key={u.id} className={isCurrentUser ? "bg-primary-50" : ""}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="h-10 w-10 flex-shrink-0">
-                        <img
-                          className="h-10 w-10 rounded-full"
+                      <div className="relative h-10 w-10 flex-shrink-0">
+                        <Image
+                          className="rounded-full"
                           src={u.imageUrl}
-                          alt=""
+                          alt={`${displayName}'s avatar`}
+                          fill
+                          sizes="40px"
                         />
                       </div>
                       <div className="ml-4">
