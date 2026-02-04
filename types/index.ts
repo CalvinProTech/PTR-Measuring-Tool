@@ -189,3 +189,35 @@ export interface CachedEstimate {
   roof: RoofData;
   cachedAt: number;
 }
+
+// Training Document Types
+export interface TrainingDocumentData {
+  id: string;
+  name: string;
+  filename: string;
+  storedName: string;
+  type: string;
+  category: string;
+  description: string | null;
+  fileSize: number;
+  uploadedAt: Date;
+  uploadedBy: string;
+}
+
+export interface TrainingDocumentsResponse {
+  success: boolean;
+  data?: TrainingDocumentData[];
+  error?: string;
+}
+
+export interface TrainingDocumentResponse {
+  success: boolean;
+  data?: TrainingDocumentData;
+  error?: string;
+}
+
+export interface TrainingDocumentUpload {
+  name: string;
+  category: string;
+  description?: string;
+}
