@@ -22,3 +22,16 @@ model PricingSettings {
   updatedAt        DateTime @updatedAt
   updatedBy        String?  // Clerk user ID
 }
+
+model TrainingDocument {
+  id          String   @id @default(cuid())
+  name        String   // Display name
+  filename    String   // Original filename
+  storedName  String   @unique // Unique filename on disk (to avoid collisions)
+  type        String   // File extension: docx, xlsx, pptx, png, jpg, mp3, pdf, etc.
+  category    String   // Category for grouping: "Core Training", "Scripts", etc.
+  description String?  // Optional description
+  fileSize    Int      // File size in bytes
+  uploadedAt  DateTime @default(now())
+  uploadedBy  String   // Clerk user ID of uploader
+}
