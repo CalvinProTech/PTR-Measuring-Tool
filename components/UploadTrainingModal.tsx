@@ -28,7 +28,7 @@ const CATEGORIES = [
   "Training Calls",
 ];
 
-const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+const MAX_FILE_SIZE = 200 * 1024 * 1024; // 200MB
 
 interface UploadTrainingModalProps {
   isOpen: boolean;
@@ -82,7 +82,7 @@ export function UploadTrainingModal({
     }
 
     if (selectedFile.size > MAX_FILE_SIZE) {
-      return "File size exceeds 50MB limit";
+      return "File size exceeds 200MB limit";
     }
 
     return null;
@@ -223,7 +223,14 @@ export function UploadTrainingModal({
             <input
               ref={fileInputRef}
               type="file"
-              accept={ALLOWED_EXTENSIONS.map((ext) => `.${ext}`).join(",")}
+              accept={[
+                ...ALLOWED_EXTENSIONS.map((ext) => `.${ext}`),
+                "video/mp4",
+                "video/*",
+                "audio/*",
+                "image/*",
+                "application/pdf",
+              ].join(",")}
               onChange={handleFileChange}
               className="hidden"
               id="file-upload"
@@ -300,7 +307,7 @@ export function UploadTrainingModal({
                   or drag and drop
                 </label>
                 <p className="mt-1 text-xs text-gray-500">
-                  PDF, Word, Excel, PowerPoint, Images, Audio (max 50MB)
+                  PDF, Word, Excel, PowerPoint, Images, Audio, Video (max 200MB)
                 </p>
               </>
             )}
