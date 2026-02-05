@@ -21,7 +21,11 @@
       "Bash(npm run test:*)",
       "Bash(timeout 15 npm run dev:*)",
       "Bash(npx prisma validate:*)",
-      "Bash(npx prisma db pull:*)"
+      "Bash(npx prisma db pull:*)",
+      "Bash(DATABASE_URL=\"postgresql://neondb_owner:npg_I1hfHWgAm2oP@ep-mute-truth-aikhqd01-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require\" npx prisma db push:*)",
+      "Bash(./node_modules/.bin/prisma generate:*)",
+      "Bash(./node_modules/.bin/prisma db pull:*)",
+      "Bash(curl:*)"
     ]
   }
 }

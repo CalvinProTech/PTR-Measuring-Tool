@@ -73,6 +73,7 @@ export async function geocodeAddress(
 
 /**
  * Get building insights from Google Solar API
+ * Tries HIGH quality first, then falls back to MEDIUM and LOW if unavailable
  */
 export async function getBuildingInsights(
   lat: number,
@@ -82,54 +83,62 @@ export async function getBuildingInsights(
     throw new Error("Google Maps API key is not configured");
   }
 
-  const url = `${SOLAR_API_BASE}/buildingInsights:findClosest?location.latitude=${lat}&location.longitude=${lng}&requiredQuality=HIGH&key=${GOOGLE_MAPS_API_KEY}`;
+  const qualityLevels = ["HIGH", "MEDIUM", "LOW"] as const;
 
-  const response = await fetch(url);
+  for (const quality of qualityLevels) {
+    const url = `${SOLAR_API_BASE}/buildingInsights:findClosest?location.latitude=${lat}&location.longitude=${lng}&requiredQuality=${quality}&key=${GOOGLE_MAPS_API_KEY}`;
 
-  if (!response.ok) {
-    // Solar API might not be available for all locations
-    if (response.status === 404) {
-      return null;
+    const response = await fetch(url);
+
+    if (response.ok) {
+      const data = await response.json();
+
+      // Extract roof data from Solar API response
+      const solarPotential = data.solarPotential;
+      if (!solarPotential) {
+        continue; // Try next quality level
+      }
+
+      const segments: RoofSegment[] = solarPotential.roofSegmentStats || [];
+      const wholeRoofStats = solarPotential.wholeRoofStats;
+
+      // Calculate total roof area in sq ft
+      const roofAreaSqFt = wholeRoofStats?.areaMeters2
+        ? sqMetersToSqFeet(wholeRoofStats.areaMeters2)
+        : segments.reduce(
+            (sum, seg) => sum + sqMetersToSqFeet(seg.areaMeters2),
+            0
+          );
+
+      // Find predominant pitch (from largest segment)
+      const predominantPitch = calculatePredominantPitch(segments);
+
+      // Estimate edge lengths (these are approximations based on available data)
+      const estimatedPerimeter = estimatePerimeter(roofAreaSqFt, segments.length);
+
+      return {
+        roofAreaSqFt: Math.round(roofAreaSqFt),
+        roofFacets: segments.length || 1,
+        predominantPitch,
+        ridgesHipsFt: Math.round(estimatedPerimeter * 0.3),
+        valleysFt: Math.round(estimatedPerimeter * 0.1),
+        rakesFt: Math.round(estimatedPerimeter * 0.25),
+        eavesFt: Math.round(estimatedPerimeter * 0.35),
+        perimeterFt: Math.round(estimatedPerimeter),
+      };
     }
+
+    // If 404, try next quality level
+    if (response.status === 404) {
+      continue;
+    }
+
+    // For other errors, throw
     throw new Error(`Solar API error: ${response.statusText}`);
   }
 
-  const data = await response.json();
-
-  // Extract roof data from Solar API response
-  const solarPotential = data.solarPotential;
-  if (!solarPotential) {
-    return null;
-  }
-
-  const segments: RoofSegment[] = solarPotential.roofSegmentStats || [];
-  const wholeRoofStats = solarPotential.wholeRoofStats;
-
-  // Calculate total roof area in sq ft
-  const roofAreaSqFt = wholeRoofStats?.areaMeters2
-    ? sqMetersToSqFeet(wholeRoofStats.areaMeters2)
-    : segments.reduce(
-        (sum, seg) => sum + sqMetersToSqFeet(seg.areaMeters2),
-        0
-      );
-
-  // Find predominant pitch (from largest segment)
-  const predominantPitch = calculatePredominantPitch(segments);
-
-  // Estimate edge lengths (these are approximations based on available data)
-  // The Solar API doesn't directly provide these, so we estimate based on area
-  const estimatedPerimeter = estimatePerimeter(roofAreaSqFt, segments.length);
-
-  return {
-    roofAreaSqFt: Math.round(roofAreaSqFt),
-    roofFacets: segments.length || 1,
-    predominantPitch,
-    ridgesHipsFt: Math.round(estimatedPerimeter * 0.3), // Estimate ~30% of perimeter
-    valleysFt: Math.round(estimatedPerimeter * 0.1), // Estimate ~10% of perimeter
-    rakesFt: Math.round(estimatedPerimeter * 0.25), // Estimate ~25% of perimeter
-    eavesFt: Math.round(estimatedPerimeter * 0.35), // Estimate ~35% of perimeter
-    perimeterFt: Math.round(estimatedPerimeter),
-  };
+  // No data available at any quality level
+  return null;
 }
 
 /**
