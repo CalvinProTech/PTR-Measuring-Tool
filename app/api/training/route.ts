@@ -2,33 +2,9 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
 import { isOwner } from "@/lib/auth";
-import { put, del } from "@vercel/blob";
-
-// Increase max duration for large file uploads
-export const maxDuration = 60;
+import { del } from "@vercel/blob";
 
 const LOG_PREFIX = "[api/training]";
-
-/** Allowed file extensions */
-const ALLOWED_EXTENSIONS = [
-  "pdf",
-  "docx",
-  "xlsx",
-  "pptx",
-  "doc",
-  "xls",
-  "ppt",
-  "png",
-  "jpg",
-  "jpeg",
-  "gif",
-  "mp3",
-  "mp4",
-  "wav",
-];
-
-/** Maximum file size (200MB) */
-const MAX_FILE_SIZE = 200 * 1024 * 1024;
 
 /**
  * GET /api/training
@@ -64,7 +40,8 @@ export async function GET() {
 
 /**
  * POST /api/training
- * Upload a new training document to Vercel Blob. Owner only.
+ * Save training document metadata after client-side upload to Vercel Blob.
+ * Owner only.
  */
 export async function POST(request: Request) {
   try {
@@ -86,17 +63,14 @@ export async function POST(request: Request) {
       );
     }
 
-    // Parse form data
-    const formData = await request.formData();
-    const file = formData.get("file") as File | null;
-    const name = formData.get("name") as string | null;
-    const category = formData.get("category") as string | null;
-    const description = formData.get("description") as string | null;
+    // Parse JSON body (metadata from client after blob upload)
+    const body = await request.json();
+    const { name, filename, blobUrl, type, category, description, fileSize } = body;
 
     // Validate required fields
-    if (!file) {
+    if (!blobUrl) {
       return NextResponse.json(
-        { success: false, error: "No file provided" },
+        { success: false, error: "Blob URL is required" },
         { status: 400 }
       );
     }
@@ -115,70 +89,35 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate file size
-    if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json(
-        { success: false, error: "File size exceeds 200MB limit" },
-        { status: 400 }
-      );
-    }
-
-    // Validate file extension
-    const originalFilename = file.name;
-    const extension = originalFilename.split(".").pop()?.toLowerCase() || "";
-
-    if (!ALLOWED_EXTENSIONS.includes(extension)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: `File type .${extension} is not allowed. Allowed types: ${ALLOWED_EXTENSIONS.join(", ")}`,
-        },
-        { status: 400 }
-      );
-    }
-
-    // Generate unique filename for blob storage
-    const timestamp = Date.now();
-    const sanitizedName = originalFilename
-      .replace(/[^a-zA-Z0-9.-]/g, "_")
-      .substring(0, 100);
-    const blobPath = `training/${timestamp}_${sanitizedName}`;
-
-    // Upload to Vercel Blob
-    const blob = await put(blobPath, file, {
-      access: "public",
-      addRandomSuffix: false,
-    });
-
     // Create database record with blob URL
     const document = await prisma.trainingDocument.create({
       data: {
         name: name.trim(),
-        filename: originalFilename,
-        storedName: blob.url, // Store the Vercel Blob URL
-        type: extension,
+        filename: filename || "unknown",
+        storedName: blobUrl, // Store the Vercel Blob URL
+        type: type || "unknown",
         category: category.trim(),
         description: description?.trim() || null,
-        fileSize: file.size,
+        fileSize: fileSize || 0,
         uploadedBy: userId,
       },
     });
 
-    console.log(`${LOG_PREFIX} Document uploaded to Vercel Blob:`, {
+    console.log(`${LOG_PREFIX} Document metadata saved:`, {
       id: document.id,
       name: document.name,
-      blobUrl: blob.url,
+      blobUrl,
       uploadedBy: userId,
     });
 
     return NextResponse.json({ success: true, data: document });
   } catch (error) {
-    console.error(`${LOG_PREFIX} Error uploading training document:`, {
+    console.error(`${LOG_PREFIX} Error saving training document:`, {
       error: error instanceof Error ? error.message : error,
       stack: error instanceof Error ? error.stack : undefined,
     });
     return NextResponse.json(
-      { success: false, error: "Failed to upload training document" },
+      { success: false, error: "Failed to save training document" },
       { status: 500 }
     );
   }

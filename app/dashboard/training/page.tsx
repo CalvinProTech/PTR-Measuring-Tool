@@ -298,6 +298,7 @@ export default function TrainingPage() {
     deleteDocument,
     isUploading,
     isDeleting,
+    uploadProgress,
   } = useTrainingDocuments();
 
   const [selectedDoc, setSelectedDoc] = useState<TrainingDocument | null>(null);
@@ -833,6 +834,7 @@ export default function TrainingPage() {
         onClose={() => setIsUploadModalOpen(false)}
         onUpload={handleUpload}
         isUploading={isUploading}
+        uploadProgress={uploadProgress}
       />
     </div>
   );
