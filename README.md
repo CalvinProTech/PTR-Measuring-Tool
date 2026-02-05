@@ -3,7 +3,7 @@
 A Next.js web application for ProTech Roofing LLC that uses Google's Geospatial and Solar APIs to calculate roof measurements and generate pricing estimates.
 
 ## Features
-
+f
 - **Authentication**: Secure sign-in/sign-up with Clerk 
 - **Address Lookup**: Google Geocoding API for address validation 
 - **Roof Analysis**: Google Solar API for roof measurements (area, pitch, facets)
