@@ -4,7 +4,7 @@ A Next.js web application for ProTech Roofing LLC that uses Google's Geospatial 
 
 ## Features
 
-- **Authentication**: Secure sign-in/sign-up with Clerk
+- **Authentication**: Secure sign-in/sign-up with Clerk 
 - **Address Lookup**: Google Geocoding API for address validation
 - **Roof Analysis**: Google Solar API for roof measurements (area, pitch, facets)
 - **Pricing Calculator**: Automatic pricing with cash, 5%, and 10% dealer fee options
