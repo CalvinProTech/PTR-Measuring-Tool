@@ -2,14 +2,12 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
 import { isOwner } from "@/lib/auth";
-import { writeFile, mkdir, unlink } from "fs/promises";
-import { existsSync } from "fs";
-import path from "path";
+import { put, del } from "@vercel/blob";
+
+// Increase max duration for large file uploads
+export const maxDuration = 60;
 
 const LOG_PREFIX = "[api/training]";
-
-/** Directory where training documents are stored */
-const UPLOADS_DIR = path.join(process.cwd(), "public", "training", "uploads");
 
 /** Allowed file extensions */
 const ALLOWED_EXTENSIONS = [
@@ -66,7 +64,7 @@ export async function GET() {
 
 /**
  * POST /api/training
- * Upload a new training document. Owner only.
+ * Upload a new training document to Vercel Blob. Owner only.
  */
 export async function POST(request: Request) {
   try {
@@ -139,29 +137,25 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create uploads directory if it doesn't exist
-    if (!existsSync(UPLOADS_DIR)) {
-      await mkdir(UPLOADS_DIR, { recursive: true });
-    }
-
-    // Generate unique filename to avoid collisions
+    // Generate unique filename for blob storage
     const timestamp = Date.now();
     const sanitizedName = originalFilename
       .replace(/[^a-zA-Z0-9.-]/g, "_")
       .substring(0, 100);
-    const storedName = `${timestamp}_${sanitizedName}`;
-    const filePath = path.join(UPLOADS_DIR, storedName);
+    const blobPath = `training/${timestamp}_${sanitizedName}`;
 
-    // Write file to disk
-    const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(filePath, buffer);
+    // Upload to Vercel Blob
+    const blob = await put(blobPath, file, {
+      access: "public",
+      addRandomSuffix: false,
+    });
 
-    // Create database record
+    // Create database record with blob URL
     const document = await prisma.trainingDocument.create({
       data: {
         name: name.trim(),
         filename: originalFilename,
-        storedName,
+        storedName: blob.url, // Store the Vercel Blob URL
         type: extension,
         category: category.trim(),
         description: description?.trim() || null,
@@ -170,10 +164,10 @@ export async function POST(request: Request) {
       },
     });
 
-    console.log(`${LOG_PREFIX} Document uploaded:`, {
+    console.log(`${LOG_PREFIX} Document uploaded to Vercel Blob:`, {
       id: document.id,
       name: document.name,
-      filename: document.filename,
+      blobUrl: blob.url,
       uploadedBy: userId,
     });
 
@@ -192,7 +186,7 @@ export async function POST(request: Request) {
 
 /**
  * DELETE /api/training
- * Delete a training document. Owner only.
+ * Delete a training document from Vercel Blob. Owner only.
  * Expects JSON body: { id: string }
  */
 export async function DELETE(request: Request) {
@@ -237,15 +231,12 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // Delete file from disk
-    const filePath = path.join(UPLOADS_DIR, document.storedName);
+    // Delete from Vercel Blob
     try {
-      if (existsSync(filePath)) {
-        await unlink(filePath);
-      }
-    } catch (fileError) {
-      console.warn(`${LOG_PREFIX} Could not delete file from disk:`, fileError);
-      // Continue with database deletion even if file deletion fails
+      await del(document.storedName);
+    } catch (blobError) {
+      console.warn(`${LOG_PREFIX} Could not delete from Vercel Blob:`, blobError);
+      // Continue with database deletion even if blob deletion fails
     }
 
     // Delete database record
