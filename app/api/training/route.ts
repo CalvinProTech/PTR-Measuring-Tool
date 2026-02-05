@@ -29,8 +29,8 @@ const ALLOWED_EXTENSIONS = [
   "wav",
 ];
 
-/** Maximum file size (50MB) */
-const MAX_FILE_SIZE = 50 * 1024 * 1024;
+/** Maximum file size (200MB) */
+const MAX_FILE_SIZE = 200 * 1024 * 1024;
 
 /**
  * GET /api/training
@@ -120,7 +120,7 @@ export async function POST(request: Request) {
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { success: false, error: "File size exceeds 50MB limit" },
+        { success: false, error: "File size exceeds 200MB limit" },
         { status: 400 }
       );
     }

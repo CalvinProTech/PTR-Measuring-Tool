@@ -31,7 +31,6 @@ export function PricingResults({ pricing, sqFt, roofFeatures }: PricingResultsPr
         <div className="grid gap-4 sm:grid-cols-3">
           <PriceCard
             title="Tier 1 - Cash"
-            subtitle="30% total fee"
             price={pricing.priceCash}
             pricePerSqFt={pricing.pricePerSqFtCash}
             commission={pricing.commissionCash}
@@ -41,7 +40,6 @@ export function PricingResults({ pricing, sqFt, roofFeatures }: PricingResultsPr
           />
           <PriceCard
             title="Tier 2 - Standard"
-            subtitle="40% total fee"
             price={pricing.price5Dealer}
             pricePerSqFt={pricing.pricePerSqFt5Dealer}
             commission={pricing.commission5Dealer}
@@ -50,7 +48,6 @@ export function PricingResults({ pricing, sqFt, roofFeatures }: PricingResultsPr
           />
           <PriceCard
             title="Tier 3 - Premium"
-            subtitle="45% total fee"
             price={pricing.price10Dealer}
             pricePerSqFt={pricing.pricePerSqFt10Dealer}
             commission={pricing.commission10Dealer}
