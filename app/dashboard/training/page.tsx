@@ -321,7 +321,8 @@ export default function TrainingPage() {
 
   const getFileUrl = (doc: TrainingDocument) => {
     if (doc.isUploaded) {
-      return `/training/uploads/${encodeURIComponent(doc.filename)}`;
+      // For uploaded docs, filename contains the Vercel Blob URL
+      return doc.filename;
     }
     return `/training/${encodeURIComponent(doc.filename).replace(/%2F/g, "/")}`;
   };

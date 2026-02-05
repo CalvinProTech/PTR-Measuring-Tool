@@ -23,7 +23,8 @@
       "Bash(npx prisma validate:*)",
       "Bash(npx prisma db pull:*)",
       "Bash(./node_modules/.bin/prisma db pull:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npm install:*)"
     ]
   }
 }
