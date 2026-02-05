@@ -40,6 +40,7 @@ interface UploadTrainingModalProps {
     description?: string;
   }) => Promise<unknown>;
   isUploading: boolean;
+  uploadProgress?: number;
 }
 
 export function UploadTrainingModal({
@@ -47,6 +48,7 @@ export function UploadTrainingModal({
   onClose,
   onUpload,
   isUploading,
+  uploadProgress = 0,
 }: UploadTrainingModalProps) {
   const [file, setFile] = useState<File | null>(null);
   const [name, setName] = useState("");
@@ -380,6 +382,22 @@ export function UploadTrainingModal({
             </div>
           )}
 
+          {/* Upload Progress */}
+          {isUploading && uploadProgress > 0 && (
+            <div className="mb-4">
+              <div className="flex justify-between text-sm text-gray-600 mb-1">
+                <span>Uploading...</span>
+                <span>{uploadProgress}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-primary-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Actions */}
           <div className="flex justify-end gap-3">
             <button
@@ -416,7 +434,7 @@ export function UploadTrainingModal({
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  Uploading...
+                  Uploading {uploadProgress}%
                 </>
               ) : (
                 "Upload"

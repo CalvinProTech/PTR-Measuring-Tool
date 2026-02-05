@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { upload } from "@vercel/blob/client";
 import type {
   TrainingDocumentData,
   TrainingDocumentsResponse,
@@ -23,6 +24,7 @@ interface UseTrainingDocumentsReturn {
   refreshDocuments: () => Promise<void>;
   isUploading: boolean;
   isDeleting: boolean;
+  uploadProgress: number;
 }
 
 export function useTrainingDocuments(): UseTrainingDocumentsReturn {
@@ -31,6 +33,7 @@ export function useTrainingDocuments(): UseTrainingDocumentsReturn {
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   // Fetch all documents from the API
   const fetchDocuments = useCallback(async () => {
@@ -60,30 +63,51 @@ export function useTrainingDocuments(): UseTrainingDocumentsReturn {
     fetchDocuments();
   }, [fetchDocuments]);
 
-  // Upload a new document
+  // Upload a new document using client-side upload to Vercel Blob
   const uploadDocument = useCallback(
     async (options: UploadOptions): Promise<TrainingDocumentData | null> => {
       try {
         setIsUploading(true);
+        setUploadProgress(0);
         setError(null);
 
-        const formData = new FormData();
-        formData.append("file", options.file);
-        formData.append("name", options.name);
-        formData.append("category", options.category);
-        if (options.description) {
-          formData.append("description", options.description);
-        }
+        // Generate unique filename
+        const timestamp = Date.now();
+        const sanitizedName = options.file.name
+          .replace(/[^a-zA-Z0-9.-]/g, "_")
+          .substring(0, 100);
+        const blobPath = `training/${timestamp}_${sanitizedName}`;
 
+        // Upload directly to Vercel Blob (bypasses serverless function limits)
+        const blob = await upload(blobPath, options.file, {
+          access: "public",
+          handleUploadUrl: "/api/training/upload",
+          onUploadProgress: (progress) => {
+            setUploadProgress(Math.round(progress.percentage));
+          },
+        });
+
+        // Now save the metadata to our database
         const response = await fetch("/api/training", {
           method: "POST",
-          body: formData,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: options.name,
+            filename: options.file.name,
+            blobUrl: blob.url,
+            type: options.file.name.split(".").pop()?.toLowerCase() || "",
+            category: options.category,
+            description: options.description,
+            fileSize: options.file.size,
+          }),
         });
 
         const data: TrainingDocumentResponse = await response.json();
 
         if (!data.success) {
-          throw new Error(data.error || "Failed to upload document");
+          throw new Error(data.error || "Failed to save document");
         }
 
         // Add the new document to the list
@@ -100,6 +124,7 @@ export function useTrainingDocuments(): UseTrainingDocumentsReturn {
         return null;
       } finally {
         setIsUploading(false);
+        setUploadProgress(0);
       }
     },
     []
@@ -147,5 +172,6 @@ export function useTrainingDocuments(): UseTrainingDocumentsReturn {
     refreshDocuments: fetchDocuments,
     isUploading,
     isDeleting,
+    uploadProgress,
   };
 }
