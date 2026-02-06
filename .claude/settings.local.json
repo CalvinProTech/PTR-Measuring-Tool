@@ -31,7 +31,8 @@
       "Skill(next-best-practices)",
       "Bash(lsof:*)",
       "Bash(xargs kill:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(ls:*)"
     ]
   }
 }

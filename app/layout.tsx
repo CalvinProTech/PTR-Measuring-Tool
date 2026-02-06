@@ -19,6 +19,10 @@ export const metadata: Metadata = {
   title: "ProTech Roofing - Estimation Tool",
   description:
     "Professional roofing estimation tool for ProTech Roofing LLC. Get instant roof measurements and pricing estimates.",
+  icons: {
+    icon: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
