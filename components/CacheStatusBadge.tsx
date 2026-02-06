@@ -24,7 +24,7 @@ export function CacheStatusBadge({
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs text-blue-700",
+        "inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs text-primary-700",
         className
       )}
     >
@@ -48,7 +48,7 @@ export function CacheStatusBadge({
         disabled={isRefreshing}
         className={cn(
           "rounded-full p-0.5 transition-colors",
-          "hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1",
+          "hover:bg-primary-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1",
           "disabled:cursor-not-allowed disabled:opacity-50"
         )}
         title="Refresh data"

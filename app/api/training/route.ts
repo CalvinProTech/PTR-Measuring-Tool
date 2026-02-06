@@ -64,7 +64,15 @@ export async function POST(request: Request) {
     }
 
     // Parse JSON body (metadata from client after blob upload)
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { success: false, error: "Invalid JSON body" },
+        { status: 400 }
+      );
+    }
     const { name, filename, blobUrl, type, category, description, fileSize } = body;
 
     // Validate required fields
@@ -148,7 +156,15 @@ export async function DELETE(request: Request) {
       );
     }
 
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { success: false, error: "Invalid JSON body" },
+        { status: 400 }
+      );
+    }
     const { id } = body;
 
     if (!id || typeof id !== "string") {

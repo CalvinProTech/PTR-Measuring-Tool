@@ -55,11 +55,12 @@ export async function GET(
     // Call Rentcast API
     const url = `${RENTCAST_API_BASE}/avm/value?address=${encodeURIComponent(address)}`;
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10_000);
     const response = await fetch(url, {
-      headers: {
-        "X-Api-Key": RENTCAST_API_KEY,
-      },
-    });
+      headers: { "X-Api-Key": RENTCAST_API_KEY },
+      signal: controller.signal,
+    }).finally(() => clearTimeout(timeoutId));
 
     if (!response.ok) {
       if (response.status === 404) {
@@ -94,11 +95,8 @@ export async function GET(
   } catch (error) {
     console.error("Property value API error:", error);
 
-    const message =
-      error instanceof Error ? error.message : "Failed to get property value";
-
     return NextResponse.json(
-      { success: false, error: message },
+      { success: false, error: "Failed to get property value" },
       { status: 500 }
     );
   }

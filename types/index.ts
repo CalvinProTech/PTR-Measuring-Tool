@@ -221,3 +221,97 @@ export interface TrainingDocumentUpload {
   category: string;
   description?: string;
 }
+
+// Nearby Places Types
+export type PlaceCategory = "restaurant" | "school" | "park";
+export type SearchRadiusMiles = 5 | 10 | 25;
+
+export interface NearbyPlace {
+  placeId: string;
+  name: string;
+  rating: number;
+  userRatingsTotal: number;
+  vicinity: string;
+  category: PlaceCategory;
+  combinedScore: number;
+  photoUrl?: string;
+  isOpen?: boolean;
+}
+
+export interface NearbyPlacesCategory {
+  category: PlaceCategory;
+  label: string;
+  places: NearbyPlace[];
+}
+
+export interface NearbyPlacesData {
+  categories: NearbyPlacesCategory[];
+  searchedAt: number;
+  radiusMiles: SearchRadiusMiles;
+}
+
+export interface NearbyPlacesResponse {
+  success: boolean;
+  data?: NearbyPlacesData;
+  error?: string;
+}
+
+// Population Density Types
+export type DensityClassification = "urban" | "suburban" | "rural";
+
+export interface PopulationDensityData {
+  population: number;
+  landAreaSqMiles: number;
+  densityPerSqMile: number;
+  classification: DensityClassification;
+  tractId: string;
+  countyName?: string;
+  fetchedAt: number;
+}
+
+export interface PopulationDensityResponse {
+  success: boolean;
+  data?: PopulationDensityData;
+  error?: string;
+}
+
+// Bulletin Types
+// Note: Date fields are strings (ISO format) because JSON serialization
+// converts Date objects to strings when sent to client components
+export interface BulletinData {
+  id: string;
+  title: string;
+  content: string;
+  publishDate: string;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+  isRead: boolean;
+}
+
+export interface BulletinCreateInput {
+  title: string;
+  content: string;
+  publishDate?: string;
+}
+
+export interface BulletinUpdateInput {
+  title?: string;
+  content?: string;
+  publishDate?: string;
+}
+
+export interface BulletinListResponse {
+  success: boolean;
+  data?: {
+    bulletins: BulletinData[];
+    unreadCount: number;
+  };
+  error?: string;
+}
+
+export interface BulletinResponse {
+  success: boolean;
+  data?: BulletinData;
+  error?: string;
+}

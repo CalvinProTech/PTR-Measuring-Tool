@@ -54,11 +54,8 @@ export async function GET(request: Request): Promise<NextResponse<RoofAnalysisRe
   } catch (error) {
     console.error("Roof analysis API error:", error);
 
-    const message =
-      error instanceof Error ? error.message : "Failed to analyze roof";
-
     return NextResponse.json(
-      { success: false, error: message },
+      { success: false, error: "Failed to analyze roof" },
       { status: 500 }
     );
   }

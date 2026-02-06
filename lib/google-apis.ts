@@ -1,4 +1,12 @@
-import type { GeocodeResult, RoofData, RoofSegment } from "@/types";
+import type {
+  GeocodeResult,
+  RoofData,
+  RoofSegment,
+  NearbyPlacesData,
+  NearbyPlace,
+  PlaceCategory,
+  NearbyPlacesCategory,
+} from "@/types";
 import { sqMetersToSqFeet, pitchDegreesToRatio } from "./utils";
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
@@ -6,6 +14,15 @@ const SOLAR_API_BASE = "https://solar.googleapis.com/v1";
 const GEOCODING_API_BASE = "https://maps.googleapis.com/maps/api/geocode/json";
 const STREET_VIEW_API_BASE = "https://maps.googleapis.com/maps/api/streetview";
 const STATIC_MAP_API_BASE = "https://maps.googleapis.com/maps/api/staticmap";
+const PLACES_API_BASE =
+  "https://maps.googleapis.com/maps/api/place/nearbysearch/json";
+const FETCH_TIMEOUT_MS = 10_000;
+
+function fetchWithTimeout(url: string, timeoutMs = FETCH_TIMEOUT_MS): Promise<Response> {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+  return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(id));
+}
 
 /**
  * Geocode an address using Google Geocoding API
@@ -21,7 +38,7 @@ export async function geocodeAddress(
   url.searchParams.set("address", address);
   url.searchParams.set("key", GOOGLE_MAPS_API_KEY);
 
-  const response = await fetch(url.toString());
+  const response = await fetchWithTimeout(url.toString());
 
   if (!response.ok) {
     throw new Error(`Geocoding API error: ${response.statusText}`);
@@ -88,7 +105,7 @@ export async function getBuildingInsights(
   for (const quality of qualityLevels) {
     const url = `${SOLAR_API_BASE}/buildingInsights:findClosest?location.latitude=${lat}&location.longitude=${lng}&requiredQuality=${quality}&key=${GOOGLE_MAPS_API_KEY}`;
 
-    const response = await fetch(url);
+    const response = await fetchWithTimeout(url);
 
     if (response.ok) {
       const data = await response.json();
@@ -178,4 +195,266 @@ function estimatePerimeter(areaSqFt: number, facets: number): number {
   const avgFacetSide = Math.sqrt(avgFacetArea);
   // Use a factor to account for rectangular shapes and overlaps
   return avgFacetSide * 4 * Math.sqrt(facets) * 0.8;
+}
+
+// ============ Nearby Places API ============
+
+// Place type mappings for each category (reduced to 3 categories)
+const CATEGORY_TYPES: Record<PlaceCategory, string[]> = {
+  restaurant: ["restaurant", "cafe"],
+  school: ["primary_school", "secondary_school"], // Grades 3-10 (elementary & middle)
+  park: ["park"],
+};
+
+const CATEGORY_LABELS: Record<PlaceCategory, string> = {
+  restaurant: "Local Restaurant",
+  school: "Nearby School",
+  park: "Nearby Park",
+};
+
+// Common chain restaurants to filter out (case-insensitive matching)
+const CHAIN_RESTAURANTS = [
+  "mcdonald",
+  "burger king",
+  "wendy",
+  "taco bell",
+  "chick-fil-a",
+  "chickfila",
+  "chick fil a",
+  "subway",
+  "starbucks",
+  "dunkin",
+  "domino",
+  "pizza hut",
+  "papa john",
+  "little caesar",
+  "chipotle",
+  "panera",
+  "five guys",
+  "popeye",
+  "kfc",
+  "kentucky fried",
+  "arby",
+  "sonic drive",
+  "jack in the box",
+  "whataburger",
+  "in-n-out",
+  "in n out",
+  "carl's jr",
+  "carls jr",
+  "hardee",
+  "wingstop",
+  "buffalo wild wings",
+  "applebee",
+  "chili's",
+  "chilis",
+  "olive garden",
+  "red lobster",
+  "outback",
+  "texas roadhouse",
+  "cracker barrel",
+  "ihop",
+  "denny",
+  "waffle house",
+  "panda express",
+  "raising cane",
+  "zaxby",
+  "bojangle",
+  "firehouse sub",
+  "jersey mike",
+  "jimmy john",
+  "potbelly",
+  "jason's deli",
+  "mcalister",
+  "noodles & company",
+  "qdoba",
+  "moe's",
+  "del taco",
+  "el pollo loco",
+  "checkers",
+  "rally's",
+  "white castle",
+  "culver",
+  "dairy queen",
+  "baskin robbins",
+  "cold stone",
+  "krispy kreme",
+];
+
+/**
+ * Check if a restaurant name is a chain
+ * @exported for testing
+ */
+export function isChainRestaurant(name: string): boolean {
+  const lowerName = name.toLowerCase();
+  return CHAIN_RESTAURANTS.some((chain) => lowerName.includes(chain));
+}
+
+/**
+ * Calculate combined score using Bayesian Average (IMDB-style)
+ * Formula: (v/(v+m)) * R + (m/(v+m)) * C
+ *
+ * This algorithm pulls scores toward the average when review count is low,
+ * ensuring places need significant reviews to rank highly.
+ *
+ * @param rating - The place's rating (0-5)
+ * @param reviewCount - Number of reviews
+ * @returns Bayesian average score
+ * @exported for testing
+ */
+export function calculateCombinedScore(rating: number, reviewCount: number): number {
+  // Bayesian Average parameters
+  const m = 50;    // Minimum reviews needed for full weight (threshold)
+  const C = 3.8;   // Average rating across all places (prior)
+
+  // Bayesian Average formula: (v/(v+m)) * R + (m/(v+m)) * C
+  const v = reviewCount;
+  const R = rating;
+
+  // Weight factor: how much to trust the actual rating vs the prior
+  const weight = v / (v + m);
+
+  // Blend the actual rating with the prior average
+  return weight * R + (1 - weight) * C;
+}
+
+/**
+ * Fetch nearby places for a single category
+ * - Only returns places that are currently open
+ * - Filters out chain restaurants
+ * - Returns only the top 1 result
+ */
+async function fetchPlacesForCategory(
+  lat: number,
+  lng: number,
+  category: PlaceCategory,
+  types: string[],
+  radiusMeters: number
+): Promise<NearbyPlace[]> {
+  const allPlaces: NearbyPlace[] = [];
+
+  // Fetch for each type in the category
+  for (const type of types) {
+    const url = new URL(PLACES_API_BASE);
+    url.searchParams.set("location", `${lat},${lng}`);
+    url.searchParams.set("radius", radiusMeters.toString());
+    url.searchParams.set("type", type);
+    url.searchParams.set("opennow", "true"); // Only fetch places that are open
+    url.searchParams.set("key", GOOGLE_MAPS_API_KEY!);
+
+    const response = await fetchWithTimeout(url.toString());
+
+    if (!response.ok) {
+      console.error(
+        `Places API error for type ${type}: ${response.statusText}`
+      );
+      continue;
+    }
+
+    const data = await response.json();
+
+    if (data.status === "OK" && data.results) {
+      const places: NearbyPlace[] = data.results
+        .filter((place: { name: string }) => {
+          // Filter out chain restaurants
+          if (category === "restaurant" && isChainRestaurant(place.name)) {
+            return false;
+          }
+          return true;
+        })
+        .map(
+          (place: {
+            place_id: string;
+            name: string;
+            rating?: number;
+            user_ratings_total?: number;
+            vicinity: string;
+            photos?: Array<{ photo_reference: string }>;
+            opening_hours?: { open_now?: boolean };
+          }) => ({
+            placeId: place.place_id,
+            name: place.name,
+            rating: place.rating || 0,
+            userRatingsTotal: place.user_ratings_total || 0,
+            vicinity: place.vicinity,
+            category,
+            combinedScore: calculateCombinedScore(
+              place.rating || 0,
+              place.user_ratings_total || 0
+            ),
+            photoUrl: place.photos?.[0]?.photo_reference
+              ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=200&photoreference=${place.photos[0].photo_reference}&key=${GOOGLE_MAPS_API_KEY}`
+              : undefined,
+            isOpen: true, // Always true since we're using opennow filter
+          })
+        );
+
+      allPlaces.push(...places);
+    }
+  }
+
+  // Deduplicate by placeId and sort by combined score
+  const uniquePlaces = Array.from(
+    new Map(allPlaces.map((p) => [p.placeId, p])).values()
+  );
+
+  return uniquePlaces
+    .sort((a, b) => b.combinedScore - a.combinedScore)
+    .slice(0, 1); // Top 1 only
+}
+
+// Miles to meters conversion
+const MILES_TO_METERS: Record<number, number> = {
+  5: 8047,
+  10: 16093,
+  25: 40234,
+};
+
+export type SearchRadiusMiles = 5 | 10 | 25;
+
+/**
+ * Get nearby places across 3 categories (restaurant, school, park)
+ * - Only returns places that are currently open
+ * - Filters out chain restaurants
+ * - Returns top 1 per category
+ * @param radiusMiles - Search radius in miles (5, 10, or 25)
+ */
+export async function getNearbyPlaces(
+  lat: number,
+  lng: number,
+  radiusMiles: SearchRadiusMiles = 5
+): Promise<NearbyPlacesData | null> {
+  if (!GOOGLE_MAPS_API_KEY) {
+    throw new Error("Google Maps API key is not configured");
+  }
+
+  const radiusMeters = MILES_TO_METERS[radiusMiles] || MILES_TO_METERS[5];
+
+  // Only 3 categories: restaurant, school, park
+  const categories: PlaceCategory[] = ["restaurant", "school", "park"];
+
+  // Fetch all categories in parallel for performance
+  const categoryResults: NearbyPlacesCategory[] = await Promise.all(
+    categories.map(async (category) => {
+      const places = await fetchPlacesForCategory(
+        lat,
+        lng,
+        category,
+        CATEGORY_TYPES[category],
+        radiusMeters
+      );
+
+      return {
+        category,
+        label: CATEGORY_LABELS[category],
+        places,
+      };
+    })
+  );
+
+  return {
+    categories: categoryResults,
+    searchedAt: Date.now(),
+    radiusMiles,
+  };
 }

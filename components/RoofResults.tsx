@@ -11,6 +11,8 @@ export function RoofResults({ address, roof }: RoofResultsProps) {
     {
       label: "Roof Area",
       value: `${formatNumber(roof.roofAreaSqFt)} sq ft`,
+      hero: true,
+      colorClass: "text-primary-600",
       icon: (
         <path
           strokeLinecap="round"
@@ -23,6 +25,7 @@ export function RoofResults({ address, roof }: RoofResultsProps) {
     {
       label: "Roof Facets",
       value: roof.roofFacets.toString(),
+      colorClass: "text-violet-500",
       icon: (
         <path
           strokeLinecap="round"
@@ -35,6 +38,7 @@ export function RoofResults({ address, roof }: RoofResultsProps) {
     {
       label: "Predominant Pitch",
       value: roof.predominantPitch,
+      colorClass: "text-violet-500",
       icon: (
         <path
           strokeLinecap="round"
@@ -47,6 +51,7 @@ export function RoofResults({ address, roof }: RoofResultsProps) {
     {
       label: "Ridges/Hips",
       value: `${formatNumber(roof.ridgesHipsFt)} ft`,
+      colorClass: "text-violet-500",
       icon: (
         <path
           strokeLinecap="round"
@@ -59,6 +64,7 @@ export function RoofResults({ address, roof }: RoofResultsProps) {
     {
       label: "Valleys",
       value: `${formatNumber(roof.valleysFt)} ft`,
+      colorClass: "text-emerald-500",
       icon: (
         <path
           strokeLinecap="round"
@@ -71,6 +77,7 @@ export function RoofResults({ address, roof }: RoofResultsProps) {
     {
       label: "Rakes",
       value: `${formatNumber(roof.rakesFt)} ft`,
+      colorClass: "text-emerald-500",
       icon: (
         <path
           strokeLinecap="round"
@@ -83,6 +90,7 @@ export function RoofResults({ address, roof }: RoofResultsProps) {
     {
       label: "Eaves",
       value: `${formatNumber(roof.eavesFt)} ft`,
+      colorClass: "text-emerald-500",
       icon: (
         <path
           strokeLinecap="round"
@@ -95,6 +103,7 @@ export function RoofResults({ address, roof }: RoofResultsProps) {
     {
       label: "Perimeter",
       value: `${formatNumber(roof.perimeterFt)} ft`,
+      colorClass: "text-emerald-500",
       icon: (
         <path
           strokeLinecap="round"
@@ -107,34 +116,32 @@ export function RoofResults({ address, roof }: RoofResultsProps) {
   ];
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-      <div className="border-b border-gray-200 px-6 py-4">
-        <h2 className="text-lg font-semibold text-gray-900">
-          Roof Measurements
-        </h2>
-        <p className="mt-1 text-sm text-gray-500">{address.formattedAddress}</p>
+    <div className="card overflow-hidden">
+      <div className="section-header">
+        <h2 className="section-title">Roof Measurements</h2>
+        <p className="section-subtitle">{address.formattedAddress}</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 p-6 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-5 p-6 sm:grid-cols-4">
         {measurements.map((item) => (
           <div
             key={item.label}
-            className="rounded-lg border border-gray-100 bg-gray-50 p-4"
+            className={`stat-card ${item.hero ? "col-span-2 bg-gradient-to-br from-primary-50 to-primary-100/50" : ""}`}
           >
             <div className="flex items-center gap-2">
               <svg
-                className="h-5 w-5 text-gray-400"
+                className={`h-5 w-5 ${item.colorClass}`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
                 {item.icon}
               </svg>
-              <span className="text-xs font-medium uppercase tracking-wide text-gray-500">
+              <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
                 {item.label}
               </span>
             </div>
-            <p className="mt-2 text-xl font-semibold text-gray-900">
+            <p className={`mt-2 font-display font-bold ${item.hero ? "text-3xl text-primary-800" : "text-xl text-neutral-800"}`}>
               {item.value}
             </p>
           </div>
