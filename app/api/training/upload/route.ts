@@ -57,9 +57,11 @@ export async function POST(request: Request): Promise<NextResponse> {
     return NextResponse.json(jsonResponse);
   } catch (error) {
     console.error("[api/training/upload] Error:", error);
+    const isAuthError = error instanceof Error &&
+      (error.message === "Unauthorized" || error.message.includes("Only owners"));
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Upload failed" },
-      { status: 400 }
+      { success: false, error: isAuthError ? error.message : "Upload failed" },
+      { status: isAuthError ? 403 : 400 }
     );
   }
 }

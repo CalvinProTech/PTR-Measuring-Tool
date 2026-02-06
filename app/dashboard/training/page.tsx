@@ -196,6 +196,15 @@ const categories = [
   "Training Calls",
 ];
 
+const CATEGORY_COLORS: Record<string, { accent: string; bg: string; text: string }> = {
+  "Core Training": { accent: "bg-primary-500", bg: "bg-primary-50", text: "text-primary-700" },
+  "Scripts": { accent: "bg-violet-500", bg: "bg-violet-50", text: "text-violet-700" },
+  "Reference": { accent: "bg-emerald-500", bg: "bg-emerald-50", text: "text-emerald-700" },
+  "Informational Lessons": { accent: "bg-amber-500", bg: "bg-amber-50", text: "text-amber-700" },
+  "Practice Sheets": { accent: "bg-cyan-500", bg: "bg-cyan-50", text: "text-cyan-700" },
+  "Training Calls": { accent: "bg-pink-500", bg: "bg-pink-50", text: "text-pink-700" },
+};
+
 const typeIcons: Record<string, ReactNode> = {
   docx: (
     <svg className="h-6 w-6 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
@@ -281,7 +290,7 @@ const typeIcons: Record<string, ReactNode> = {
 
 // Default icon for unknown types
 const defaultIcon = (
-  <svg className="h-6 w-6 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+  <svg className="h-6 w-6 text-neutral-500" fill="currentColor" viewBox="0 0 24 24">
     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h6v6h6v10H6z"/>
   </svg>
 );
@@ -289,7 +298,7 @@ const defaultIcon = (
 export default function TrainingPage() {
   const { user } = useUser();
   const isOwner = user?.publicMetadata?.role === "owner";
-  
+
   const {
     documents: uploadedDocuments,
     isLoading,
@@ -375,20 +384,20 @@ export default function TrainingPage() {
     const isOfficeDoc = ["docx", "doc", "xlsx", "xls", "pptx", "ppt"].includes(selectedDoc.type.toLowerCase());
 
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-        <div className="relative flex h-[90vh] w-full max-w-6xl flex-col rounded-lg bg-white shadow-xl">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 backdrop-blur-sm p-4">
+        <div className="relative flex h-[90vh] w-full max-w-6xl flex-col rounded-2xl bg-white shadow-elevated animate-scale-in">
           {/* Header */}
-          <div className="flex items-center justify-between border-b px-6 py-4">
+          <div className="flex items-center justify-between border-b border-neutral-200 px-6 py-4">
             <div className="flex items-center gap-3">
               {getIcon(selectedDoc.type)}
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 className="font-display text-lg font-semibold text-neutral-800">
                 {selectedDoc.name}
               </h2>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => handleDownload(selectedDoc)}
-                className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
+                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary-600 to-primary-700 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
               >
                 <svg
                   className="h-4 w-4"
@@ -407,7 +416,7 @@ export default function TrainingPage() {
               </button>
               <button
                 onClick={closeViewer}
-                className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                className="rounded-xl p-2 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700"
               >
                 <svg
                   className="h-6 w-6"
@@ -427,7 +436,7 @@ export default function TrainingPage() {
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-hidden bg-gray-100 p-4">
+          <div className="flex-1 overflow-hidden bg-neutral-100 p-4 rounded-b-2xl">
             {isImage ? (
               <div className="relative h-full w-full">
                 <Image
@@ -442,7 +451,7 @@ export default function TrainingPage() {
                 <div className="flex h-32 w-32 items-center justify-center rounded-full bg-pink-100">
                   {getIcon(selectedDoc.type)}
                 </div>
-                <h3 className="text-xl font-medium text-gray-900">
+                <h3 className="font-display text-xl font-semibold text-neutral-800">
                   {selectedDoc.name}
                 </h3>
                 <audio
@@ -457,7 +466,7 @@ export default function TrainingPage() {
               <div className="flex h-full flex-col items-center justify-center gap-6">
                 <video
                   controls
-                  className="max-h-full max-w-full"
+                  className="max-h-full max-w-full rounded-xl"
                   src={getFileUrl(selectedDoc)}
                 >
                   Your browser does not support the video element.
@@ -466,24 +475,24 @@ export default function TrainingPage() {
             ) : isPdf ? (
               <iframe
                 src={getFileUrl(selectedDoc)}
-                className="h-full w-full rounded-lg border-0 bg-white"
+                className="h-full w-full rounded-xl border-0 bg-white"
                 title={selectedDoc.name}
               />
             ) : isOfficeDoc ? (
               <div className="flex h-full flex-col items-center justify-center gap-6">
-                <div className="flex h-32 w-32 items-center justify-center rounded-full bg-gray-100">
+                <div className="flex h-32 w-32 items-center justify-center rounded-2xl bg-neutral-200/50">
                   {getIcon(selectedDoc.type)}
                 </div>
-                <h3 className="text-xl font-medium text-gray-900">
+                <h3 className="font-display text-xl font-semibold text-neutral-800">
                   {selectedDoc.name}
                 </h3>
-                <p className="text-gray-500">
+                <p className="text-neutral-500">
                   This file type cannot be previewed in the browser.
                 </p>
                 <a
                   href={getFileUrl(selectedDoc)}
                   download
-                  className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700"
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-3 text-white shadow-lg shadow-primary-600/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl"
                 >
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -493,19 +502,19 @@ export default function TrainingPage() {
               </div>
             ) : (
               <div className="flex h-full flex-col items-center justify-center gap-6">
-                <div className="flex h-32 w-32 items-center justify-center rounded-full bg-gray-100">
+                <div className="flex h-32 w-32 items-center justify-center rounded-2xl bg-neutral-200/50">
                   {getIcon(selectedDoc.type)}
                 </div>
-                <h3 className="text-xl font-medium text-gray-900">
+                <h3 className="font-display text-xl font-semibold text-neutral-800">
                   {selectedDoc.name}
                 </h3>
-                <p className="text-gray-500">
+                <p className="text-neutral-500">
                   Preview not available for this file type.
                 </p>
                 <a
                   href={getFileUrl(selectedDoc)}
                   download
-                  className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700"
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-3 text-white shadow-lg shadow-primary-600/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl"
                 >
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -527,24 +536,24 @@ export default function TrainingPage() {
     if (!doc) return null;
 
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-        <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-          <h3 className="text-lg font-semibold text-gray-900">Delete Document</h3>
-          <p className="mt-2 text-gray-600">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 backdrop-blur-sm p-4">
+        <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-elevated animate-scale-in">
+          <h3 className="font-display text-lg font-semibold text-neutral-800">Delete Document</h3>
+          <p className="mt-2 text-neutral-600">
             Are you sure you want to delete &quot;{doc.name}&quot;? This action cannot be undone.
           </p>
           <div className="mt-6 flex justify-end gap-3">
             <button
               onClick={() => setDeleteConfirmId(null)}
               disabled={isDeleting}
-              className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              className="rounded-xl border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               onClick={() => handleDelete(deleteConfirmId)}
               disabled={isDeleting}
-              className="inline-flex items-center rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+              className="inline-flex items-center rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50"
             >
               {isDeleting ? (
                 <>
@@ -580,12 +589,12 @@ export default function TrainingPage() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 animate-fade-in-up">
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Training Materials</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="font-display text-2xl font-bold text-neutral-800">Training Materials</h1>
+          <p className="mt-1 text-sm text-neutral-500">
             Access training documents, scripts, and resources
           </p>
         </div>
@@ -593,7 +602,7 @@ export default function TrainingPage() {
           {isOwner && (
             <button
               onClick={() => setIsUploadModalOpen(true)}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary-600 to-primary-700 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-primary-600/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary-600/30"
             >
               <svg
                 className="h-5 w-5"
@@ -611,23 +620,23 @@ export default function TrainingPage() {
               Upload Document
             </button>
           )}
-          <div className="flex items-center gap-2 rounded-lg bg-gray-100 p-1">
+          <div className="flex items-center gap-1 rounded-xl bg-neutral-100 p-1">
             <button
               onClick={() => setViewMode("list")}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium ${
+              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-200 ${
                 viewMode === "list"
-                  ? "bg-white text-gray-900 shadow"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "bg-white text-neutral-800 shadow-sm"
+                  : "text-neutral-500 hover:text-neutral-700"
               }`}
             >
               List
             </button>
             <button
               onClick={() => setViewMode("grid")}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium ${
+              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-200 ${
                 viewMode === "grid"
-                  ? "bg-white text-gray-900 shadow"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "bg-white text-neutral-800 shadow-sm"
+                  : "text-neutral-500 hover:text-neutral-700"
               }`}
             >
               Grid
@@ -638,14 +647,14 @@ export default function TrainingPage() {
 
       {/* Loading State */}
       {isLoading && (
-        <div className="mb-4 rounded-lg bg-blue-50 p-4 text-blue-700">
+        <div className="mb-4 rounded-xl bg-primary-50 p-4 text-primary-700 border border-primary-200/60">
           Loading documents...
         </div>
       )}
 
       {/* Error State */}
       {error && (
-        <div className="mb-4 rounded-lg bg-red-50 p-4 text-red-700">
+        <div className="mb-4 rounded-xl bg-red-50 p-4 text-red-700 border border-red-200/60">
           {error}
         </div>
       )}
@@ -656,48 +665,55 @@ export default function TrainingPage() {
           (doc) => doc.category === category
         );
         if (categoryDocs.length === 0) return null;
+        const colors = CATEGORY_COLORS[category] || CATEGORY_COLORS["Core Training"];
 
         return (
           <div key={category} className="mb-8">
-            <h2 className="mb-4 text-lg font-semibold text-gray-900">
-              {category}
-            </h2>
+            <div className="mb-4 flex items-center gap-3">
+              <div className={`h-5 w-1 rounded-full ${colors.accent}`} />
+              <h2 className="font-display text-lg font-semibold text-neutral-800">
+                {category}
+              </h2>
+              <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${colors.bg} ${colors.text}`}>
+                {categoryDocs.length}
+              </span>
+            </div>
 
             {viewMode === "list" ? (
-              <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+              <div className="card overflow-hidden">
+                <table className="min-w-full divide-y divide-neutral-200">
+                  <thead className="bg-neutral-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                      <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-neutral-400">
                         Document
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                      <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-neutral-400">
                         Type
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                      <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-neutral-400">
                         Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200 bg-white">
+                  <tbody className="divide-y divide-neutral-200">
                     {categoryDocs.map((doc) => (
-                      <tr key={doc.id} className="hover:bg-gray-50">
+                      <tr key={doc.id} className="transition-colors hover:bg-primary-50/30">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             {getIcon(doc.type)}
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className="font-medium text-gray-900">
+                                <span className="font-medium text-neutral-800">
                                   {doc.name}
                                 </span>
                                 {doc.isUploaded && (
-                                  <span className="inline-flex rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
+                                  <span className="inline-flex rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700">
                                     Uploaded
                                   </span>
                                 )}
                               </div>
                               {doc.description && (
-                                <div className="text-sm text-gray-500">
+                                <div className="text-sm text-neutral-500">
                                   {doc.description}
                                 </div>
                               )}
@@ -705,7 +721,7 @@ export default function TrainingPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="inline-flex rounded-full bg-gray-100 px-2 py-1 text-xs font-medium uppercase text-gray-600">
+                          <span className="inline-flex rounded-full bg-neutral-100 px-2 py-1 text-xs font-medium uppercase text-neutral-600">
                             {doc.type}
                           </span>
                         </td>
@@ -713,20 +729,20 @@ export default function TrainingPage() {
                           <div className="flex items-center justify-end gap-2">
                             <button
                               onClick={() => handleView(doc)}
-                              className="rounded-lg px-3 py-1.5 text-sm font-medium text-primary-600 hover:bg-primary-50"
+                              className="rounded-lg px-3 py-1.5 text-sm font-medium text-primary-600 transition-colors hover:bg-primary-50"
                             >
                               View
                             </button>
                             <button
                               onClick={() => handleDownload(doc)}
-                              className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100"
+                              className="rounded-lg px-3 py-1.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100"
                             >
                               Download
                             </button>
                             {isOwner && doc.isUploaded && (
                               <button
                                 onClick={() => setDeleteConfirmId(doc.id)}
-                                className="rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50"
+                                className="rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
                               >
                                 Delete
                               </button>
@@ -743,39 +759,39 @@ export default function TrainingPage() {
                 {categoryDocs.map((doc) => (
                   <div
                     key={doc.id}
-                    className="group rounded-lg border border-gray-200 bg-white p-4 hover:border-primary-300 hover:shadow-md"
+                    className="card-hover group rounded-xl p-4"
                   >
                     <div className="mb-3 flex items-start justify-between">
                       <div className="flex items-center gap-2">
                         {getIcon(doc.type)}
                         {doc.isUploaded && (
-                          <span className="inline-flex rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
+                          <span className="inline-flex rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700">
                             Uploaded
                           </span>
                         )}
                       </div>
-                      <span className="inline-flex rounded-full bg-gray-100 px-2 py-1 text-xs font-medium uppercase text-gray-600">
+                      <span className="inline-flex rounded-full bg-neutral-100 px-2 py-1 text-xs font-medium uppercase text-neutral-600">
                         {doc.type}
                       </span>
                     </div>
-                    <h3 className="mb-1 font-medium text-gray-900">
+                    <h3 className="mb-1 font-medium text-neutral-800">
                       {doc.name}
                     </h3>
                     {doc.description && (
-                      <p className="mb-4 text-sm text-gray-500">
+                      <p className="mb-4 text-sm text-neutral-500">
                         {doc.description}
                       </p>
                     )}
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleView(doc)}
-                        className="flex-1 rounded-lg bg-primary-600 px-3 py-2 text-sm font-medium text-white hover:bg-primary-700"
+                        className="flex-1 rounded-xl bg-gradient-to-r from-primary-600 to-primary-700 px-3 py-2 text-sm font-medium text-white transition-all duration-200 hover:shadow-md"
                       >
                         View
                       </button>
                       <button
                         onClick={() => handleDownload(doc)}
-                        className="rounded-lg border border-gray-300 p-2 text-gray-600 hover:bg-gray-50"
+                        className="rounded-xl border border-neutral-200 p-2 text-neutral-600 transition-colors hover:bg-neutral-50"
                         title="Download"
                       >
                         <svg
@@ -795,7 +811,7 @@ export default function TrainingPage() {
                       {isOwner && doc.isUploaded && (
                         <button
                           onClick={() => setDeleteConfirmId(doc.id)}
-                          className="rounded-lg border border-red-300 p-2 text-red-600 hover:bg-red-50"
+                          className="rounded-xl border border-red-200 p-2 text-red-600 transition-colors hover:bg-red-50"
                           title="Delete"
                         >
                           <svg

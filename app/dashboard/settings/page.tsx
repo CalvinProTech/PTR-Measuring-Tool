@@ -79,7 +79,7 @@ export default function SettingsPage() {
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center justify-center py-12">
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-sm text-gray-500">Loading settings...</p>
+          <p className="mt-4 text-sm text-neutral-500">Loading settings...</p>
         </div>
       </div>
     );
@@ -93,9 +93,18 @@ export default function SettingsPage() {
   if (error) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-          <h3 className="text-sm font-medium text-red-800">Error loading settings</h3>
-          <p className="mt-1 text-sm text-red-700">{error}</p>
+        <div className="rounded-xl border border-red-200 bg-gradient-to-r from-red-50 to-red-50/50 p-5">
+          <div className="flex items-center gap-3">
+            <div className="rounded-full bg-red-100 p-2">
+              <svg className="h-5 w-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-red-800">Error loading settings</h3>
+              <p className="mt-0.5 text-sm text-red-700">{error}</p>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -106,17 +115,17 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8 animate-fade-in-up">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Pricing Settings</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="font-display text-2xl font-bold text-neutral-800">Pricing Settings</h1>
+        <p className="mt-1 text-sm text-neutral-500">
           Configure the pricing parameters used for roof estimation calculations.
         </p>
       </div>
 
       {/* Settings Form */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="card p-8">
         <PricingSettingsForm initialSettings={settings} onSave={handleSave} />
       </div>
     </div>

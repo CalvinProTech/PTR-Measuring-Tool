@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 
 const ALLOWED_EXTENSIONS = [
   "pdf",
@@ -57,6 +57,8 @@ export function UploadTrainingModal({
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const nameRef = useRef(name);
+  useEffect(() => { nameRef.current = name; }, [name]);
 
   const resetForm = useCallback(() => {
     setFile(null);
@@ -102,12 +104,12 @@ export function UploadTrainingModal({
       setFile(selectedFile);
 
       // Auto-fill name from filename if empty
-      if (!name) {
+      if (!nameRef.current) {
         const nameWithoutExt = selectedFile.name.replace(/\.[^/.]+$/, "");
         setName(nameWithoutExt);
       }
     },
-    [name, validateFile]
+    [validateFile]
   );
 
   const handleFileChange = useCallback(
@@ -179,17 +181,17 @@ export function UploadTrainingModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-lg rounded-lg bg-white shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="upload-modal-title">
+      <div className="w-full max-w-lg rounded-2xl bg-white shadow-elevated animate-scale-in">
         {/* Header */}
-        <div className="flex items-center justify-between border-b px-6 py-4">
-          <h2 className="text-lg font-semibold text-gray-900">
+        <div className="flex items-center justify-between border-b border-neutral-200 px-6 py-4">
+          <h2 id="upload-modal-title" className="font-display text-lg font-semibold text-neutral-800">
             Upload Training Document
           </h2>
           <button
             onClick={handleClose}
             disabled={isUploading}
-            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50"
+            className="rounded-xl p-2 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700 disabled:opacity-50"
           >
             <svg
               className="h-5 w-5"
@@ -211,12 +213,12 @@ export function UploadTrainingModal({
         <form onSubmit={handleSubmit} className="p-6">
           {/* File Drop Zone */}
           <div
-            className={`mb-4 rounded-lg border-2 border-dashed p-6 text-center transition-colors ${
+            className={`mb-4 rounded-2xl border-2 border-dashed p-6 text-center transition-all duration-200 ${
               isDragging
-                ? "border-primary-500 bg-primary-50"
+                ? "border-primary-500 bg-primary-50 scale-[1.01]"
                 : file
-                  ? "border-green-500 bg-green-50"
-                  : "border-gray-300 hover:border-gray-400"
+                  ? "border-emerald-400 bg-emerald-50"
+                  : "border-neutral-300 hover:border-neutral-400"
             }`}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
@@ -241,7 +243,7 @@ export function UploadTrainingModal({
             {file ? (
               <div className="flex items-center justify-center gap-3">
                 <svg
-                  className="h-8 w-8 text-green-600"
+                  className="h-8 w-8 text-emerald-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -254,8 +256,8 @@ export function UploadTrainingModal({
                   />
                 </svg>
                 <div className="text-left">
-                  <p className="font-medium text-gray-900">{file.name}</p>
-                  <p className="text-sm text-gray-500">
+                  <p className="font-medium text-neutral-800">{file.name}</p>
+                  <p className="text-sm text-neutral-500">
                     {formatFileSize(file.size)}
                   </p>
                 </div>
@@ -267,7 +269,7 @@ export function UploadTrainingModal({
                       fileInputRef.current.value = "";
                     }
                   }}
-                  className="ml-2 rounded-full p-1 text-gray-400 hover:bg-gray-200 hover:text-gray-600"
+                  className="ml-2 rounded-full p-1 text-neutral-400 transition-colors hover:bg-neutral-200 hover:text-neutral-600"
                 >
                   <svg
                     className="h-5 w-5"
@@ -287,7 +289,7 @@ export function UploadTrainingModal({
             ) : (
               <>
                 <svg
-                  className="mx-auto h-12 w-12 text-gray-400"
+                  className="mx-auto h-12 w-12 text-neutral-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -301,14 +303,14 @@ export function UploadTrainingModal({
                 </svg>
                 <label
                   htmlFor="file-upload"
-                  className="mt-2 block cursor-pointer text-sm text-gray-600"
+                  className="mt-2 block cursor-pointer text-sm text-neutral-600"
                 >
                   <span className="font-medium text-primary-600 hover:text-primary-500">
                     Click to upload
                   </span>{" "}
                   or drag and drop
                 </label>
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-xs text-neutral-400">
                   PDF, Word, Excel, PowerPoint, Images, Audio, Video (max 200MB)
                 </p>
               </>
@@ -319,7 +321,7 @@ export function UploadTrainingModal({
           <div className="mb-4">
             <label
               htmlFor="name"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-neutral-600"
             >
               Document Name *
             </label>
@@ -328,7 +330,7 @@ export function UploadTrainingModal({
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              className="mt-1 block w-full rounded-xl border border-neutral-200 px-4 py-2.5 shadow-sm transition-all duration-200 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
               placeholder="Enter document name"
               required
             />
@@ -338,7 +340,7 @@ export function UploadTrainingModal({
           <div className="mb-4">
             <label
               htmlFor="category"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-neutral-600"
             >
               Category *
             </label>
@@ -346,7 +348,7 @@ export function UploadTrainingModal({
               id="category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              className="mt-1 block w-full rounded-xl border border-neutral-200 px-4 py-2.5 shadow-sm transition-all duration-200 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
               required
             >
               {CATEGORIES.map((cat) => (
@@ -361,7 +363,7 @@ export function UploadTrainingModal({
           <div className="mb-4">
             <label
               htmlFor="description"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-neutral-600"
             >
               Description (optional)
             </label>
@@ -370,14 +372,14 @@ export function UploadTrainingModal({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              className="mt-1 block w-full rounded-xl border border-neutral-200 px-4 py-2.5 shadow-sm transition-all duration-200 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
               placeholder="Brief description of the document"
             />
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700">
+            <div className="mb-4 rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700">
               {error}
             </div>
           )}
@@ -385,13 +387,13 @@ export function UploadTrainingModal({
           {/* Upload Progress */}
           {isUploading && uploadProgress > 0 && (
             <div className="mb-4">
-              <div className="flex justify-between text-sm text-gray-600 mb-1">
+              <div className="flex justify-between text-sm text-neutral-600 mb-1">
                 <span>Uploading...</span>
                 <span>{uploadProgress}%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-neutral-200 rounded-full h-2 overflow-hidden">
                 <div
-                  className="bg-primary-600 h-2 rounded-full transition-all duration-300"
+                  className="bg-gradient-to-r from-primary-500 to-primary-600 h-2 rounded-full transition-all duration-300 relative after:absolute after:inset-0 after:bg-gradient-to-r after:from-transparent after:via-white/30 after:to-transparent after:animate-shimmer"
                   style={{ width: `${uploadProgress}%` }}
                 />
               </div>
@@ -404,14 +406,14 @@ export function UploadTrainingModal({
               type="button"
               onClick={handleClose}
               disabled={isUploading}
-              className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              className="rounded-xl border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isUploading || !file}
-              className="inline-flex items-center rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50"
+              className="inline-flex items-center rounded-xl bg-gradient-to-r from-primary-600 to-primary-700 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-primary-600/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary-600/30 disabled:opacity-50 disabled:hover:translate-y-0"
             >
               {isUploading ? (
                 <>

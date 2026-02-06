@@ -24,7 +24,14 @@
       "Bash(npx prisma db pull:*)",
       "Bash(./node_modules/.bin/prisma db pull:*)",
       "Bash(curl:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(npm test:*)",
+      "Bash(cat:*)",
+      "Bash(npx prisma db push:*)",
+      "Skill(next-best-practices)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

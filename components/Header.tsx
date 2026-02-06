@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { UserButton, useUser } from "@clerk/nextjs";
 import type { UserRole } from "@/types";
@@ -12,50 +13,42 @@ export function Header() {
   const role = (user?.publicMetadata?.role as UserRole) || "agent";
   const isOwner = role === "owner";
 
+  const isActive = (path: string) => pathname === path;
+
+  const navLinkClass = (path: string) =>
+    `text-sm font-medium transition-colors duration-200 rounded-lg px-3 py-1.5 ${
+      isActive(path)
+        ? "bg-primary-50 text-primary-700"
+        : "text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100"
+    }`;
+
   return (
-    <header className="border-b border-gray-200 bg-white">
+    <header className="sticky top-0 z-40 glass">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-6">
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600">
-              <svg
-                className="h-5 w-5 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                />
-              </svg>
+          <Link href="/dashboard" className="flex items-center gap-2.5">
+            <div className="relative">
+              <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 opacity-20 blur-sm" />
+              <Image
+                src="/company-logo.jpg"
+                alt="ProTech Roofing"
+                width={36}
+                height={36}
+                className="relative rounded-lg"
+              />
             </div>
-            <span className="text-lg font-semibold text-gray-900">
+            <span className="font-display text-lg font-bold tracking-tight text-neutral-800">
               ProTech Roofing
             </span>
           </Link>
 
-          {/* Navigation */}
-          <nav className="hidden sm:flex items-center gap-4">
-            <Link
-              href="/dashboard"
-              className={`text-sm font-medium ${
-                pathname === "/dashboard"
-                  ? "text-primary-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
+          <nav className="hidden sm:flex items-center gap-1">
+            <Link href="/dashboard" className={navLinkClass("/dashboard")}>
               Estimates
             </Link>
             <Link
               href="/dashboard/training"
-              className={`text-sm font-medium ${
-                pathname === "/dashboard/training"
-                  ? "text-primary-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
+              className={navLinkClass("/dashboard/training")}
             >
               Training
             </Link>
@@ -63,21 +56,13 @@ export function Header() {
               <>
                 <Link
                   href="/dashboard/users"
-                  className={`text-sm font-medium ${
-                    pathname === "/dashboard/users"
-                      ? "text-primary-600"
-                      : "text-gray-500 hover:text-gray-700"
-                  }`}
+                  className={navLinkClass("/dashboard/users")}
                 >
                   Users
                 </Link>
                 <Link
                   href="/dashboard/settings"
-                  className={`text-sm font-medium ${
-                    pathname === "/dashboard/settings"
-                      ? "text-primary-600"
-                      : "text-gray-500 hover:text-gray-700"
-                  }`}
+                  className={navLinkClass("/dashboard/settings")}
                 >
                   Settings
                 </Link>
@@ -87,10 +72,9 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Mobile Training Link */}
           <Link
             href="/dashboard/training"
-            className="sm:hidden p-2 text-gray-500 hover:text-gray-700"
+            className="sm:hidden p-2 text-neutral-500 hover:text-neutral-700 transition-colors duration-200"
             title="Training"
           >
             <svg
@@ -107,12 +91,11 @@ export function Header() {
               />
             </svg>
           </Link>
-          {/* Mobile Links for Owners */}
           {isOwner && (
             <>
               <Link
                 href="/dashboard/users"
-                className="sm:hidden p-2 text-gray-500 hover:text-gray-700"
+                className="sm:hidden p-2 text-neutral-500 hover:text-neutral-700 transition-colors duration-200"
                 title="Users"
               >
                 <svg
@@ -131,7 +114,7 @@ export function Header() {
               </Link>
               <Link
                 href="/dashboard/settings"
-                className="sm:hidden p-2 text-gray-500 hover:text-gray-700"
+                className="sm:hidden p-2 text-neutral-500 hover:text-neutral-700 transition-colors duration-200"
                 title="Settings"
               >
                 <svg

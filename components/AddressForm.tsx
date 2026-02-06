@@ -65,7 +65,6 @@ export function AddressForm({
     setShowDropdown(false);
     setError(null);
 
-    // Convert StoredSearch to GeocodeResult and call the handler
     if (onSelectFromDropdown) {
       const geocode: GeocodeResult = {
         formattedAddress: search.formattedAddress,
@@ -86,7 +85,6 @@ export function AddressForm({
     setShowDropdown(false);
     setError(null);
 
-    // Convert StoredSavedAddress to GeocodeResult and call the handler
     if (onSelectFromDropdown) {
       const geocode: GeocodeResult = {
         formattedAddress: saved.formattedAddress,
@@ -122,13 +120,14 @@ export function AddressForm({
             disabled={isLoading}
             autoComplete="off"
             className={cn(
-              "block w-full rounded-lg border px-4 py-3 text-gray-900 shadow-sm",
-              "placeholder:text-gray-400",
-              "focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20",
-              "disabled:bg-gray-50 disabled:text-gray-500",
+              "block w-full rounded-xl border px-5 py-3.5 text-neutral-800 shadow-sm",
+              "placeholder:text-neutral-400",
+              "focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20",
+              "disabled:bg-neutral-50 disabled:text-neutral-500",
+              "transition-all duration-200",
               error
                 ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
-                : "border-gray-300"
+                : "border-neutral-200"
             )}
           />
           {error && (
@@ -137,7 +136,6 @@ export function AddressForm({
             </p>
           )}
 
-          {/* Dropdown */}
           <AddressDropdown
             recentSearches={recentSearches}
             savedAddresses={savedAddresses}
@@ -153,12 +151,13 @@ export function AddressForm({
           type="submit"
           disabled={isLoading || !address.trim()}
           className={cn(
-            "inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold shadow-sm",
-            "bg-primary-600 text-white",
-            "hover:bg-primary-500",
+            "inline-flex items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-sm font-semibold",
+            "bg-gradient-to-r from-primary-600 to-primary-700 text-white",
+            "shadow-lg shadow-primary-600/20",
+            "hover:shadow-xl hover:shadow-primary-600/25 hover:-translate-y-0.5",
             "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600",
-            "disabled:cursor-not-allowed disabled:opacity-50",
-            "transition-colors duration-200"
+            "disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-lg",
+            "transition-all duration-200"
           )}
         >
           {isLoading ? (

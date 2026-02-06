@@ -3,20 +3,87 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 249, 250, 251;
-  --background-end-rgb: 255, 255, 255;
+  --surface-primary: #ffffff;
+  --surface-secondary: #f8f9fb;
+  --surface-sunken: #f1f3f6;
+  --border-default: #e4e7ed;
+  --border-subtle: #f1f3f6;
+  --text-primary: #232a3b;
+  --text-secondary: #6b7489;
+  --text-muted: #9ca3b4;
+  --brand-primary: #2a47c9;
+  --brand-light: #f0f4ff;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  color: var(--text-primary);
+  background-color: var(--surface-secondary);
+  background-image: radial-gradient(circle, #cdd2db 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-attachment: fixed;
+  /* 3% opacity via the dot color being close to bg */
   min-height: 100vh;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f3f6;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cdd2db;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3b4;
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-neutral-200 bg-white shadow-card;
+  }
+
+  .card-hover {
+    @apply rounded-xl border border-neutral-200 bg-white shadow-card transition-all duration-200 hover:shadow-card-hover hover:border-neutral-300;
+  }
+
+  .stat-card {
+    @apply rounded-lg border border-neutral-100 bg-neutral-50 p-4 transition-all duration-200 hover:shadow-sm;
+  }
+
+  .section-header {
+    @apply border-b border-neutral-200 px-6 py-5;
+  }
+
+  .section-title {
+    @apply font-display text-lg font-semibold text-neutral-800;
+  }
+
+  .section-subtitle {
+    @apply mt-1 text-sm text-neutral-500;
+  }
+
+  .glass {
+    @apply bg-white/80 backdrop-blur-md border-b border-neutral-200/60;
+  }
+
+  .shimmer-bg {
+    background: linear-gradient(
+      90deg,
+      #f1f3f6 0%,
+      #e4e7ed 40%,
+      #f1f3f6 60%,
+      #f1f3f6 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite linear;
+  }
 }
 
 @layer utilities {

@@ -62,13 +62,13 @@ export function PricingSettingsForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Target Profit - Main Control */}
-      <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Target Profit</h3>
-        <p className="text-sm text-gray-500 mb-4">
+      <div className="border-l-4 border-primary-200 pl-6">
+        <h3 className="font-display text-lg font-semibold text-neutral-800 mb-2">Target Profit</h3>
+        <p className="text-sm text-neutral-500 mb-4">
           This is the main control for adjusting all prices up or down. Increasing target profit raises all tier prices proportionally.
         </p>
         <div className="max-w-xs">
-          <label htmlFor="targetProfit" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="targetProfit" className="block text-sm font-medium text-neutral-600">
             Target Profit ($)
           </label>
           <input
@@ -78,21 +78,21 @@ export function PricingSettingsForm({
             min="0"
             value={settings.targetProfit}
             onChange={(e) => handleChange("targetProfit", e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-lg shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            className="mt-1 block w-full rounded-xl border border-neutral-200 px-4 py-3 text-lg shadow-sm transition-all duration-200 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
           />
-          <p className="mt-1 text-xs text-gray-500">Default: $2,000</p>
+          <p className="mt-1 text-xs text-neutral-400">Default: $2,000</p>
         </div>
       </div>
 
       {/* Base Cost Settings */}
-      <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Base Costs</h3>
-        <p className="text-sm text-gray-500 mb-4">
+      <div className="border-l-4 border-primary-200 pl-6">
+        <h3 className="font-display text-lg font-semibold text-neutral-800 mb-2">Base Costs</h3>
+        <p className="text-sm text-neutral-500 mb-4">
           Adjust if material or labor costs change. Commission rate is fixed at 30% (agent 10% + owner 10% + lead 10%).
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="costPerSqFt" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="costPerSqFt" className="block text-sm font-medium text-neutral-600">
               Cost per Sq Ft ($)
             </label>
             <input
@@ -102,12 +102,12 @@ export function PricingSettingsForm({
               min="0"
               value={settings.costPerSqFt}
               onChange={(e) => handleChange("costPerSqFt", e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              className="mt-1 block w-full rounded-xl border border-neutral-200 px-4 py-2.5 shadow-sm transition-all duration-200 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
             />
-            <p className="mt-1 text-xs text-gray-500">Default: $5.00</p>
+            <p className="mt-1 text-xs text-neutral-400">Default: $5.00</p>
           </div>
           <div>
-            <label htmlFor="gutterPricePerFt" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="gutterPricePerFt" className="block text-sm font-medium text-neutral-600">
               Gutter Price per Ft ($)
             </label>
             <input
@@ -117,22 +117,22 @@ export function PricingSettingsForm({
               min="0"
               value={settings.gutterPricePerFt}
               onChange={(e) => handleChange("gutterPricePerFt", e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              className="mt-1 block w-full rounded-xl border border-neutral-200 px-4 py-2.5 shadow-sm transition-all duration-200 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
             />
-            <p className="mt-1 text-xs text-gray-500">Default: $15.00</p>
+            <p className="mt-1 text-xs text-neutral-400">Default: $15.00</p>
           </div>
         </div>
       </div>
 
       {/* Tier Pricing Section */}
-      <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Tier Dealer Fees</h3>
-        <p className="text-sm text-gray-500 mb-4">
+      <div className="border-l-4 border-primary-200 pl-6">
+        <h3 className="font-display text-lg font-semibold text-neutral-800 mb-2">Tier Dealer Fees</h3>
+        <p className="text-sm text-neutral-500 mb-4">
           Dealer fees are added to the base 30% commission. Total fee = 30% + dealer fee.
         </p>
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
-            <label htmlFor="tier1DealerFee" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="tier1DealerFee" className="block text-sm font-medium text-neutral-600">
               Tier 1 - Cash (%)
             </label>
             <input
@@ -143,12 +143,12 @@ export function PricingSettingsForm({
               max="69"
               value={settings.tier1DealerFee}
               onChange={(e) => handleChange("tier1DealerFee", e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              className="mt-1 block w-full rounded-xl border border-neutral-200 px-4 py-2.5 shadow-sm transition-all duration-200 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
             />
-            <p className="mt-1 text-xs text-gray-500">Default: 0% (total: 30%)</p>
+            <p className="mt-1 text-xs text-neutral-400">Default: 0% (total: 30%)</p>
           </div>
           <div>
-            <label htmlFor="tier2DealerFee" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="tier2DealerFee" className="block text-sm font-medium text-neutral-600">
               Tier 2 - Standard (%)
             </label>
             <input
@@ -159,12 +159,12 @@ export function PricingSettingsForm({
               max="69"
               value={settings.tier2DealerFee}
               onChange={(e) => handleChange("tier2DealerFee", e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              className="mt-1 block w-full rounded-xl border border-neutral-200 px-4 py-2.5 shadow-sm transition-all duration-200 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
             />
-            <p className="mt-1 text-xs text-gray-500">Default: 10% (total: 40%)</p>
+            <p className="mt-1 text-xs text-neutral-400">Default: 10% (total: 40%)</p>
           </div>
           <div>
-            <label htmlFor="tier3DealerFee" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="tier3DealerFee" className="block text-sm font-medium text-neutral-600">
               Tier 3 - Premium (%)
             </label>
             <input
@@ -175,22 +175,22 @@ export function PricingSettingsForm({
               max="69"
               value={settings.tier3DealerFee}
               onChange={(e) => handleChange("tier3DealerFee", e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              className="mt-1 block w-full rounded-xl border border-neutral-200 px-4 py-2.5 shadow-sm transition-all duration-200 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
             />
-            <p className="mt-1 text-xs text-gray-500">Default: 15% (total: 45%)</p>
+            <p className="mt-1 text-xs text-neutral-400">Default: 15% (total: 45%)</p>
           </div>
         </div>
       </div>
 
       {/* Roof Feature Adjustments Section */}
-      <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Roof Feature Adjustments</h3>
-        <p className="text-sm text-gray-500 mb-4">
+      <div className="border-l-4 border-primary-200 pl-6">
+        <h3 className="font-display text-lg font-semibold text-neutral-800 mb-4">Roof Feature Adjustments</h3>
+        <p className="text-sm text-neutral-500 mb-4">
           Set the additional cost per unit for roof features that require removal/reinstallation during roofing work.
         </p>
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
-            <label htmlFor="solarPanelPricePerUnit" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="solarPanelPricePerUnit" className="block text-sm font-medium text-neutral-600">
               Solar Panel ($/unit)
             </label>
             <input
@@ -200,12 +200,12 @@ export function PricingSettingsForm({
               min="0"
               value={settings.solarPanelPricePerUnit}
               onChange={(e) => handleChange("solarPanelPricePerUnit", e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              className="mt-1 block w-full rounded-xl border border-neutral-200 px-4 py-2.5 shadow-sm transition-all duration-200 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
             />
-            <p className="mt-1 text-xs text-gray-500">Default: $150</p>
+            <p className="mt-1 text-xs text-neutral-400">Default: $150</p>
           </div>
           <div>
-            <label htmlFor="skylightPricePerUnit" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="skylightPricePerUnit" className="block text-sm font-medium text-neutral-600">
               Skylight ($/unit)
             </label>
             <input
@@ -215,12 +215,12 @@ export function PricingSettingsForm({
               min="0"
               value={settings.skylightPricePerUnit}
               onChange={(e) => handleChange("skylightPricePerUnit", e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              className="mt-1 block w-full rounded-xl border border-neutral-200 px-4 py-2.5 shadow-sm transition-all duration-200 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
             />
-            <p className="mt-1 text-xs text-gray-500">Default: $200</p>
+            <p className="mt-1 text-xs text-neutral-400">Default: $200</p>
           </div>
           <div>
-            <label htmlFor="satellitePricePerUnit" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="satellitePricePerUnit" className="block text-sm font-medium text-neutral-600">
               Satellite Dish ($/unit)
             </label>
             <input
@@ -230,9 +230,9 @@ export function PricingSettingsForm({
               min="0"
               value={settings.satellitePricePerUnit}
               onChange={(e) => handleChange("satellitePricePerUnit", e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              className="mt-1 block w-full rounded-xl border border-neutral-200 px-4 py-2.5 shadow-sm transition-all duration-200 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
             />
-            <p className="mt-1 text-xs text-gray-500">Default: $75</p>
+            <p className="mt-1 text-xs text-neutral-400">Default: $75</p>
           </div>
         </div>
       </div>
@@ -240,10 +240,10 @@ export function PricingSettingsForm({
       {/* Message */}
       {message && (
         <div
-          className={`rounded-md p-4 ${
+          className={`rounded-xl p-4 ${
             message.type === "success"
-              ? "bg-green-50 text-green-800"
-              : "bg-red-50 text-red-800"
+              ? "bg-green-50 text-green-800 border border-green-200"
+              : "bg-red-50 text-red-800 border border-red-200"
           }`}
         >
           {message.text}
@@ -255,7 +255,7 @@ export function PricingSettingsForm({
         <button
           type="submit"
           disabled={isSaving}
-          className="inline-flex items-center rounded-md bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center rounded-xl bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary-600/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary-600/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
         >
           {isSaving ? (
             <>

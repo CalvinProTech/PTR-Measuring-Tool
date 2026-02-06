@@ -1,15 +1,19 @@
-import type { GeocodeResult, RoofData } from "@/types";
+import type { GeocodeResult, RoofData, NearbyPlacesData, PopulationDensityData } from "@/types";
 
 // Storage keys
 const STORAGE_KEYS = {
   RECENT_SEARCHES: "protech_recent_searches",
   SAVED_ADDRESSES: "protech_saved_addresses",
   ESTIMATE_CACHE: "protech_estimate_cache",
+  NEARBY_PLACES_CACHE: "protech_nearby_places_cache",
+  POPULATION_DENSITY_CACHE: "protech_population_density_cache",
 } as const;
 
 // Constants
 const MAX_RECENT_SEARCHES = 10;
 const ROOF_TTL_DAYS = 30;
+const PLACES_TTL_DAYS = 7;
+const DENSITY_TTL_DAYS = 90;
 
 // Types
 export interface StoredSearch {
@@ -33,6 +37,16 @@ export interface StoredSavedAddress extends StoredSearch {
 export interface CachedEstimate {
   geocode: GeocodeResult;
   roof: RoofData;
+  cachedAt: number;
+}
+
+export interface CachedNearbyPlaces {
+  data: NearbyPlacesData;
+  cachedAt: number;
+}
+
+export interface CachedPopulationDensity {
+  data: PopulationDensityData;
   cachedAt: number;
 }
 
@@ -246,4 +260,104 @@ export function clearAllCache(): void {
   localStorage.removeItem(STORAGE_KEYS.RECENT_SEARCHES);
   localStorage.removeItem(STORAGE_KEYS.SAVED_ADDRESSES);
   localStorage.removeItem(STORAGE_KEYS.ESTIMATE_CACHE);
+  localStorage.removeItem(STORAGE_KEYS.NEARBY_PLACES_CACHE);
+  localStorage.removeItem(STORAGE_KEYS.POPULATION_DENSITY_CACHE);
+}
+
+// ============ Nearby Places Cache ============
+
+type PlacesCacheMap = Record<string, CachedNearbyPlaces>;
+
+function getPlacesCacheMap(): PlacesCacheMap {
+  return getStorageData<PlacesCacheMap>(STORAGE_KEYS.NEARBY_PLACES_CACHE, {});
+}
+
+function setPlacesCacheMap(cache: PlacesCacheMap): void {
+  setStorageData(STORAGE_KEYS.NEARBY_PLACES_CACHE, cache);
+}
+
+export function getCachedNearbyPlaces(
+  formattedAddress: string
+): CachedNearbyPlaces | null {
+  const cache = getPlacesCacheMap();
+  const key = normalizeAddress(formattedAddress);
+  const cached = cache[key];
+
+  if (!cached) return null;
+
+  // Check if cache is still fresh (7 days)
+  const ageMs = Date.now() - cached.cachedAt;
+  const ageDays = ageMs / (1000 * 60 * 60 * 24);
+
+  if (ageDays > PLACES_TTL_DAYS) {
+    // Cache expired, remove it
+    delete cache[key];
+    setPlacesCacheMap(cache);
+    return null;
+  }
+
+  return cached;
+}
+
+export function setCachedNearbyPlaces(
+  formattedAddress: string,
+  data: NearbyPlacesData
+): void {
+  const cache = getPlacesCacheMap();
+  const key = normalizeAddress(formattedAddress);
+
+  cache[key] = {
+    data,
+    cachedAt: Date.now(),
+  };
+
+  setPlacesCacheMap(cache);
+}
+
+// ============ Population Density Cache ============
+
+type DensityCacheMap = Record<string, CachedPopulationDensity>;
+
+function getDensityCacheMap(): DensityCacheMap {
+  return getStorageData<DensityCacheMap>(STORAGE_KEYS.POPULATION_DENSITY_CACHE, {});
+}
+
+function setDensityCacheMap(cache: DensityCacheMap): void {
+  setStorageData(STORAGE_KEYS.POPULATION_DENSITY_CACHE, cache);
+}
+
+export function getCachedPopulationDensity(
+  formattedAddress: string
+): CachedPopulationDensity | null {
+  const cache = getDensityCacheMap();
+  const key = normalizeAddress(formattedAddress);
+  const cached = cache[key];
+
+  if (!cached) return null;
+
+  const ageMs = Date.now() - cached.cachedAt;
+  const ageDays = ageMs / (1000 * 60 * 60 * 24);
+
+  if (ageDays > DENSITY_TTL_DAYS) {
+    delete cache[key];
+    setDensityCacheMap(cache);
+    return null;
+  }
+
+  return cached;
+}
+
+export function setCachedPopulationDensity(
+  formattedAddress: string,
+  data: PopulationDensityData
+): void {
+  const cache = getDensityCacheMap();
+  const key = normalizeAddress(formattedAddress);
+
+  cache[key] = {
+    data,
+    cachedAt: Date.now(),
+  };
+
+  setDensityCacheMap(cache);
 }

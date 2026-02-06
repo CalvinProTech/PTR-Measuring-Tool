@@ -51,11 +51,8 @@ export async function POST(request: Request): Promise<NextResponse<GeocodeRespon
   } catch (error) {
     console.error("Geocode API error:", error);
 
-    const message =
-      error instanceof Error ? error.message : "Failed to geocode address";
-
     return NextResponse.json(
-      { success: false, error: message },
+      { success: false, error: "Failed to geocode address" },
       { status: 500 }
     );
   }
