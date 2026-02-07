@@ -49,6 +49,3 @@ next-env.d.ts
 .opencode
 
 /lib/generated/prisma
-
-# Large training files (exceed GitHub's 100MB limit)
-public/training/Roofing Sales 101.pptx

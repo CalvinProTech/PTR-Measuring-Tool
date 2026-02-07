@@ -7,186 +7,6 @@ import { useTrainingDocuments } from "@/hooks/useTrainingDocuments";
 import { UploadTrainingModal } from "@/components/UploadTrainingModal";
 import type { TrainingDocumentData } from "@/types";
 
-interface TrainingDocument {
-  id: string;
-  name: string;
-  filename: string;
-  type: string;
-  category: string;
-  description?: string | null;
-  isUploaded?: boolean; // true for API documents, false for static
-}
-
-// Static training documents (legacy - stored in public/training/)
-const staticTrainingDocuments: TrainingDocument[] = [
-  // Main Documents
-  {
-    id: "static-1",
-    name: "ProTech Roofing Training Week",
-    filename: "ProTech Roofing Training Week.pptx",
-    type: "pptx",
-    category: "Core Training",
-    description: "Complete training presentation for new team members",
-    isUploaded: false,
-  },
-  {
-    id: "static-2",
-    name: "Roofing Sales 101",
-    filename: "Roofing Sales 101.pptx",
-    type: "pptx",
-    category: "Core Training",
-    description: "Fundamentals of roofing sales",
-    isUploaded: false,
-  },
-  {
-    id: "static-3",
-    name: "ProTech Roofing Call Script",
-    filename: "ProTech Roofing Call Script.docx",
-    type: "docx",
-    category: "Scripts",
-    description: "Standard call script for customer outreach",
-    isUploaded: false,
-  },
-  {
-    id: "static-4",
-    name: "ProTech Roofing Call Script (Alternate)",
-    filename: "ProTech Roofing Call Script (Evan Alternate).docx",
-    type: "docx",
-    category: "Scripts",
-    description: "Alternative call script approach",
-    isUploaded: false,
-  },
-  {
-    id: "static-5",
-    name: "Fronter Script",
-    filename: "Fronter Script.docx",
-    type: "docx",
-    category: "Scripts",
-    description: "Script for fronter role",
-    isUploaded: false,
-  },
-  {
-    id: "static-6",
-    name: "ProTech Client Questions",
-    filename: "ProTech Client Questions.docx",
-    type: "docx",
-    category: "Reference",
-    description: "Common client questions and answers",
-    isUploaded: false,
-  },
-  {
-    id: "static-7",
-    name: "ProTech Price Guide",
-    filename: "ProTech Price Guide.xlsx",
-    type: "xlsx",
-    category: "Reference",
-    description: "Pricing reference guide",
-    isUploaded: false,
-  },
-  {
-    id: "static-8",
-    name: "Pitch Chart",
-    filename: "Pitch Chart.png",
-    type: "png",
-    category: "Reference",
-    description: "Visual pitch reference chart",
-    isUploaded: false,
-  },
-  {
-    id: "static-9",
-    name: "Roof Diagram",
-    filename: "roof-diagram.png",
-    type: "png",
-    category: "Reference",
-    description: "Roof structure diagram",
-    isUploaded: false,
-  },
-  // Informational Lessons
-  {
-    id: "static-10",
-    name: "Auxiliary Tips, Tricks, and Information",
-    filename: "informational-lessons/Auxiliary Tips, Trick, and Information.docx",
-    type: "docx",
-    category: "Informational Lessons",
-    description: "Additional tips and helpful information",
-    isUploaded: false,
-  },
-  {
-    id: "static-11",
-    name: "Roofing Types and Differences",
-    filename: "informational-lessons/Roofing Types and Differences.docx",
-    type: "docx",
-    category: "Informational Lessons",
-    description: "Overview of different roofing types",
-    isUploaded: false,
-  },
-  {
-    id: "static-12",
-    name: "Selling Points",
-    filename: "informational-lessons/Selling Points.docx",
-    type: "docx",
-    category: "Informational Lessons",
-    description: "Key selling points for roofing services",
-    isUploaded: false,
-  },
-  {
-    id: "static-13",
-    name: "Training Links",
-    filename: "informational-lessons/Training Links.docx",
-    type: "docx",
-    category: "Informational Lessons",
-    description: "Collection of useful training resources",
-    isUploaded: false,
-  },
-  // Practice Sheets
-  {
-    id: "static-14",
-    name: "Practice Measurements",
-    filename: "practice-sheets/Practice Measurements.docx",
-    type: "docx",
-    category: "Practice Sheets",
-    description: "Measurement practice exercises",
-    isUploaded: false,
-  },
-  {
-    id: "static-15",
-    name: "Practice Measurements II",
-    filename: "practice-sheets/Practice Measurements II.docx",
-    type: "docx",
-    category: "Practice Sheets",
-    description: "Advanced measurement practice",
-    isUploaded: false,
-  },
-  {
-    id: "static-16",
-    name: "Roofing Knowledge Inventory",
-    filename: "practice-sheets/Roofing Knowledge Inventory.docx",
-    type: "docx",
-    category: "Practice Sheets",
-    description: "Self-assessment quiz",
-    isUploaded: false,
-  },
-  // Training Calls
-  {
-    id: "static-17",
-    name: "Training Call - Evan Clark & Delores Epps",
-    filename: "training-calls/Evan Clark Delores Epps.mp3",
-    type: "mp3",
-    category: "Training Calls",
-    description: "Recorded training call example",
-    isUploaded: false,
-  },
-  {
-    id: "static-18",
-    name: "Training Call - Evan Clark & Elizabeth Mazzola Part 1",
-    filename: "training-calls/Evan Clark Elizabeth Mazzola Part 1.mp3",
-    type: "mp3",
-    category: "Training Calls",
-    description: "Recorded training call example",
-    isUploaded: false,
-  },
-];
-
 const categories = [
   "Core Training",
   "Scripts",
@@ -300,7 +120,7 @@ export default function TrainingPage() {
   const isOwner = user?.publicMetadata?.role === "owner";
 
   const {
-    documents: uploadedDocuments,
+    documents: allDocuments,
     isLoading,
     error,
     uploadDocument,
@@ -310,41 +130,23 @@ export default function TrainingPage() {
     uploadProgress,
   } = useTrainingDocuments();
 
-  const [selectedDoc, setSelectedDoc] = useState<TrainingDocument | null>(null);
+  const [selectedDoc, setSelectedDoc] = useState<TrainingDocumentData | null>(null);
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
-  // Combine static and uploaded documents
-  const allDocuments: TrainingDocument[] = [
-    ...staticTrainingDocuments,
-    ...uploadedDocuments.map((doc: TrainingDocumentData) => ({
-      id: doc.id,
-      name: doc.name,
-      filename: doc.storedName,
-      type: doc.type,
-      category: doc.category,
-      description: doc.description,
-      isUploaded: true,
-    })),
-  ];
-
-  const getFileUrl = (doc: TrainingDocument) => {
-    if (doc.isUploaded) {
-      // For uploaded docs, filename contains the Vercel Blob URL
-      return doc.filename;
-    }
-    return `/training/${encodeURIComponent(doc.filename).replace(/%2F/g, "/")}`;
+  const getFileUrl = (doc: TrainingDocumentData) => {
+    return doc.storedName;
   };
 
-  const handleView = (doc: TrainingDocument) => {
+  const handleView = (doc: TrainingDocumentData) => {
     setSelectedDoc(doc);
   };
 
-  const handleDownload = (doc: TrainingDocument) => {
+  const handleDownload = (doc: TrainingDocumentData) => {
     const link = document.createElement("a");
-    link.href = getFileUrl(doc);
-    link.download = doc.filename.split("/").pop() || doc.filename;
+    link.href = doc.storedName;
+    link.download = doc.filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -706,11 +508,6 @@ export default function TrainingPage() {
                                 <span className="font-medium text-neutral-800">
                                   {doc.name}
                                 </span>
-                                {doc.isUploaded && (
-                                  <span className="inline-flex rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700">
-                                    Uploaded
-                                  </span>
-                                )}
                               </div>
                               {doc.description && (
                                 <div className="text-sm text-neutral-500">
@@ -739,7 +536,7 @@ export default function TrainingPage() {
                             >
                               Download
                             </button>
-                            {isOwner && doc.isUploaded && (
+                            {isOwner && (
                               <button
                                 onClick={() => setDeleteConfirmId(doc.id)}
                                 className="rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
@@ -764,11 +561,6 @@ export default function TrainingPage() {
                     <div className="mb-3 flex items-start justify-between">
                       <div className="flex items-center gap-2">
                         {getIcon(doc.type)}
-                        {doc.isUploaded && (
-                          <span className="inline-flex rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700">
-                            Uploaded
-                          </span>
-                        )}
                       </div>
                       <span className="inline-flex rounded-full bg-neutral-100 px-2 py-1 text-xs font-medium uppercase text-neutral-600">
                         {doc.type}
@@ -808,7 +600,7 @@ export default function TrainingPage() {
                           />
                         </svg>
                       </button>
-                      {isOwner && doc.isUploaded && (
+                      {isOwner && (
                         <button
                           onClick={() => setDeleteConfirmId(doc.id)}
                           className="rounded-xl border border-red-200 p-2 text-red-600 transition-colors hover:bg-red-50"

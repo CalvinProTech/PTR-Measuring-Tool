@@ -64,10 +64,12 @@ export function BulletinModal({
     }
 
     try {
+      // Parse date with noon time to avoid timezone shifts
+      // "2026-02-06" + "T12:00:00" ensures the date stays correct in any timezone
       await onSave({
         title: title.trim(),
         content: content.trim(),
-        publishDate: new Date(publishDate).toISOString(),
+        publishDate: new Date(`${publishDate}T12:00:00`).toISOString(),
       });
       onClose();
     } catch (err) {
