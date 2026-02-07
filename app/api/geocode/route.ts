@@ -1,19 +1,11 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
 import { geocodeAddress } from "@/lib/google-apis";
 import { addressSchema } from "@/lib/validations";
 import type { GeocodeResponse } from "@/types";
 
 export async function POST(request: Request): Promise<NextResponse<GeocodeResponse>> {
   try {
-    // Verify authentication
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+    // Note: Auth removed to support Salesforce embed which bypasses Clerk
 
     // Parse and validate request body
     const body = await request.json();

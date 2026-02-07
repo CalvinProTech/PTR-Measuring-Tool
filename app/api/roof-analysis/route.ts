@@ -1,19 +1,11 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
 import { getBuildingInsights } from "@/lib/google-apis";
 import { roofAnalysisParamsSchema } from "@/lib/validations";
 import type { RoofAnalysisResponse } from "@/types";
 
 export async function GET(request: Request): Promise<NextResponse<RoofAnalysisResponse>> {
   try {
-    // Verify authentication
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+    // Note: Auth removed to support Salesforce embed which bypasses Clerk
 
     // Parse query parameters
     const { searchParams } = new URL(request.url);

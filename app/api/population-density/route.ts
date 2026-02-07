@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
 import { getPopulationDensity } from "@/lib/census-api";
 import { roofAnalysisParamsSchema } from "@/lib/validations";
 import type { PopulationDensityResponse } from "@/types";
@@ -8,13 +7,7 @@ export async function GET(
   request: Request
 ): Promise<NextResponse<PopulationDensityResponse>> {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+    // Note: Auth removed to support Salesforce embed which bypasses Clerk
 
     const { searchParams } = new URL(request.url);
     const lat = parseFloat(searchParams.get("lat") || "");

@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
 import { getNearbyPlaces } from "@/lib/google-apis";
 import { roofAnalysisParamsSchema } from "@/lib/validations";
 import type { NearbyPlacesResponse, SearchRadiusMiles } from "@/types";
@@ -10,14 +9,7 @@ export async function GET(
   request: Request
 ): Promise<NextResponse<NearbyPlacesResponse>> {
   try {
-    // Verify authentication
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+    // Note: Auth removed to support Salesforce embed which bypasses Clerk
 
     // Parse query parameters
     const { searchParams } = new URL(request.url);

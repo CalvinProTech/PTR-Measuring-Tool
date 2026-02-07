@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
 import { checkRateLimit, incrementRateLimit, getRateLimitStatus } from "@/lib/rate-limiter";
 import type { PropertyValueResponse } from "@/types";
 
@@ -11,14 +10,7 @@ export async function GET(
   request: Request
 ): Promise<NextResponse<PropertyValueResponse>> {
   try {
-    // Verify authentication
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+    // Note: Auth removed to support Salesforce embed which bypasses Clerk
 
     // Check rate limit before making API call
     const rateLimit = checkRateLimit("rentcast", RENTCAST_RATE_LIMIT);

@@ -25,18 +25,10 @@ const pricingSettingsSchema = z.object({
 /**
  * GET /api/settings/pricing
  * Fetch current pricing settings. Creates default if none exists.
+ * Note: Auth removed for GET to support Salesforce embed which bypasses Clerk
  */
 export async function GET() {
   try {
-    const { userId } = await auth();
-
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
     // Get the first (and only) pricing settings record, or create default
     let settings = await prisma.pricingSettings.findFirst();
 
