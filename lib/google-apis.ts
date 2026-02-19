@@ -142,6 +142,7 @@ export async function getBuildingInsights(
         rakesFt: Math.round(estimatedPerimeter * 0.25),
         eavesFt: Math.round(estimatedPerimeter * 0.35),
         perimeterFt: Math.round(estimatedPerimeter),
+        dataQuality: quality,
       };
     }
 

@@ -32,7 +32,11 @@
       "Bash(lsof:*)",
       "Bash(xargs kill:*)",
       "Bash(npx tsc:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(git pull:*)",
+      "WebFetch(domain:developers.google.com)",
+      "Bash(node -e:*)",
+      "Bash(python3:*)"
     ]
   }
 }
