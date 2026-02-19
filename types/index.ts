@@ -48,6 +48,8 @@ export interface RoofSegment {
   azimuthDegrees: number;
 }
 
+export type SolarApiQuality = "HIGH" | "MEDIUM" | "LOW";
+
 export interface RoofData {
   roofAreaSqFt: number;
   roofFacets: number;
@@ -57,6 +59,7 @@ export interface RoofData {
   rakesFt: number;
   eavesFt: number;
   perimeterFt: number;
+  dataQuality: SolarApiQuality;
 }
 
 export interface GeocodeResult {

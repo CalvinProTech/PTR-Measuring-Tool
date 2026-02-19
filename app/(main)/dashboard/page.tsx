@@ -769,7 +769,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
-            <RoofResults address={estimate.address} roof={estimate.roof} />
+            <RoofResults address={estimate.address} roof={estimate.roof} propertyValue={estimate.propertyValue} />
           </div>
           <div className="animate-fade-in-up" style={{ animationDelay: "0.5s" }}>
             <PricingResults

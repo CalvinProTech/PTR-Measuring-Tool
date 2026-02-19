@@ -1,12 +1,22 @@
-import type { RoofData, GeocodeResult } from "@/types";
+import type { RoofData, GeocodeResult, PropertyValue } from "@/types";
 import { formatNumber } from "@/lib/utils";
 
 interface RoofResultsProps {
   address: GeocodeResult;
   roof: RoofData;
+  propertyValue?: PropertyValue;
 }
 
-export function RoofResults({ address, roof }: RoofResultsProps) {
+export function RoofResults({ address, roof, propertyValue }: RoofResultsProps) {
+  // Detect likely inaccurate measurements by comparing roof area to building sq ft.
+  // A roof must cover the building footprint, so even for a 2-story home,
+  // roof area should be at least ~40% of total living area. Below that = red flag.
+  const buildingSqFt = propertyValue?.squareFootage;
+  const roofTooBig = buildingSqFt && roof.roofAreaSqFt > buildingSqFt * 1.8;
+  const hasDiscrepancy = buildingSqFt
+    ? roof.roofAreaSqFt < buildingSqFt * 0.4 || roofTooBig
+    : false;
+
   const measurements = [
     {
       label: "Roof Area",
@@ -120,6 +130,54 @@ export function RoofResults({ address, roof }: RoofResultsProps) {
       <div className="section-header">
         <h2 className="section-title">Roof Measurements</h2>
         <p className="section-subtitle">{address.formattedAddress}</p>
+      </div>
+
+      <div className={`mx-6 mt-4 rounded-lg border-2 p-4 ${
+        hasDiscrepancy
+          ? "border-red-400 bg-red-50"
+          : "border-amber-400 bg-amber-50"
+      }`}>
+        <div className="flex items-center gap-3">
+          <svg
+            className={`h-7 w-7 flex-shrink-0 ${hasDiscrepancy ? "text-red-600" : "text-amber-600"}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2.5}
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+            />
+          </svg>
+          <span className={`text-lg font-bold uppercase tracking-wide ${
+            hasDiscrepancy ? "text-red-700" : "text-amber-700"
+          }`}>
+            {hasDiscrepancy
+              ? "Measurement Discrepancy Detected"
+              : "Verify Before Quoting"}
+          </span>
+        </div>
+        <p className={`mt-3 text-sm font-medium leading-relaxed ${
+          hasDiscrepancy ? "text-red-800" : "text-amber-800"
+        }`}>
+          {hasDiscrepancy ? (
+            <>
+              The roof area ({formatNumber(roof.roofAreaSqFt)} sq ft) appears inconsistent with the
+              property size ({formatNumber(buildingSqFt!)} sq ft building).
+              The Google Solar API may have failed to detect all roof segments.
+              <span className="font-bold"> Do not quote from these measurements</span> — use an independent
+              measurement service to get accurate numbers.
+            </>
+          ) : (
+            <>
+              These measurements are estimates from Google&apos;s Solar API and frequently
+              underestimate actual roof size. <span className="font-bold">Always verify with an independent
+              measurement service before quoting.</span>
+            </>
+          )}
+        </p>
       </div>
 
       <div className="grid grid-cols-2 gap-5 p-6 sm:grid-cols-4">
