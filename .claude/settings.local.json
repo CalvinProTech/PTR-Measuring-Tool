@@ -37,7 +37,14 @@
       "WebFetch(domain:developers.google.com)",
       "Bash(node -e:*)",
       "Bash(python3:*)",
-      "WebFetch(domain:docs.repliers.io)"
+      "WebFetch(domain:docs.repliers.io)",
+      "WebFetch(domain:developer.batchdata.com)",
+      "WebFetch(domain:batchdata.io)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(gh api:*)",
+      "WebFetch(domain:api.github.com)",
+      "Bash(npx next dev --port 3847)"
     ]
   }
 }
