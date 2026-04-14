@@ -129,7 +129,7 @@ export async function getBuildingInsights(
       // predominant pitch, since different roof faces can have different slopes.
       const roofAreaSqFt = segments.length > 0
         ? segments.reduce((sum, seg) => {
-            const segPlanSqFt = sqMetersToSqFeet(seg.areaMeters2);
+            const segPlanSqFt = sqMetersToSqFeet(seg.stats.areaMeters2);
             const segPitch = (seg.pitchDegrees ?? 0) < 7.2 ? 0 : (seg.pitchDegrees ?? 0);
             return sum + segPlanSqFt * slopeCorrectionFactor(segPitch);
           }, 0)
@@ -144,7 +144,7 @@ export async function getBuildingInsights(
       const segmentDetails: RoofSegmentDetail[] = segments.map((seg) => {
         const segPitch = (seg.pitchDegrees ?? 0) < 7.2 ? 0 : (seg.pitchDegrees ?? 0);
         return {
-          areaSqFt: Math.round(sqMetersToSqFeet(seg.areaMeters2) * slopeCorrectionFactor(segPitch)),
+          areaSqFt: Math.round(sqMetersToSqFeet(seg.stats.areaMeters2) * slopeCorrectionFactor(segPitch)),
           pitchDegrees: Math.round((seg.pitchDegrees ?? 0) * 10) / 10,
           pitch: segPitch === 0 ? "0/12" : pitchDegreesToRatio(segPitch),
           azimuthDegrees: Math.round(seg.azimuthDegrees ?? 0),
@@ -185,7 +185,7 @@ function getPredominantPitchDegrees(segments: RoofSegment[]): number {
   if (!segments.length) return 18.43; // Default ~4/12
 
   const largest = segments.reduce((prev, curr) =>
-    curr.areaMeters2 > prev.areaMeters2 ? curr : prev
+    curr.stats.areaMeters2 > prev.stats.areaMeters2 ? curr : prev
   );
 
   const pitchDegrees = largest.pitchDegrees ?? 18.43;
