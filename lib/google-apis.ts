@@ -122,18 +122,20 @@ export async function getBuildingInsights(
       // Find predominant pitch (from largest segment)
       const predominantPitch = calculatePredominantPitch(segments);
 
-      // Calculate total roof area in sq ft (plan-view from Solar API)
-      const planAreaSqFt = wholeRoofStats?.areaMeters2
-        ? sqMetersToSqFeet(wholeRoofStats.areaMeters2)
-        : segments.reduce(
-            (sum, seg) => sum + sqMetersToSqFeet(seg.stats.areaMeters2),
-            0
-          );
-
-      // Apply slope correction: Solar API returns horizontal projection,
-      // actual roof surface area is larger on pitched roofs
-      const pitchDegrees = getPredominantPitchDegrees(segments);
-      const roofAreaSqFt = planAreaSqFt * slopeCorrectionFactor(pitchDegrees);
+      // Calculate roof area with per-segment slope correction.
+      // Solar API returns plan-view (horizontal projection) area for each segment.
+      // Each segment has its own pitch, so we correct each one individually
+      // rather than applying a single predominant pitch to the whole roof.
+      // This is more accurate on multi-pitch roofs (e.g., steep main roof + flat porch).
+      const roofAreaSqFt = segments.length > 0
+        ? segments.reduce((sum, seg) => {
+            const segPlanSqFt = sqMetersToSqFeet(seg.stats.areaMeters2);
+            const segPitchDeg = seg.pitchDegrees ?? 0;
+            return sum + segPlanSqFt * slopeCorrectionFactor(segPitchDeg);
+          }, 0)
+        : wholeRoofStats?.areaMeters2
+          ? sqMetersToSqFeet(wholeRoofStats.areaMeters2)
+          : 0;
 
       // Estimate edge lengths (these are approximations based on available data)
       const estimatedPerimeter = estimatePerimeter(roofAreaSqFt, segments.length);
