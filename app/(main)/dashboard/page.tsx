@@ -6,6 +6,7 @@ import { useUser } from "@clerk/nextjs";
 import { AddressForm } from "@/components/AddressForm";
 import { RoofFeaturesForm } from "@/components/RoofFeaturesForm";
 import { RoofResults } from "@/components/RoofResults";
+import { ClickableAerialMap } from "@/components/ClickableAerialMap";
 import { PricingResults } from "@/components/PricingResults";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { CacheStatusBadge } from "@/components/CacheStatusBadge";
@@ -60,6 +61,45 @@ export default function DashboardPage() {
   const [searchRadius, setSearchRadius] = useState<SearchRadiusMiles>(5);
   const [populationDensity, setPopulationDensity] = useState<PopulationDensityData | null>(null);
   const [isLoadingDensity, setIsLoadingDensity] = useState(false);
+  const [isRemeasuring, setIsRemeasuring] = useState(false);
+
+  // Re-measure from a clicked point on the map
+  const handleRemeasure = useCallback(async (newLat: number, newLng: number) => {
+    if (!estimate || !pricingSettings) return;
+    setIsRemeasuring(true);
+    try {
+      const roofRes = await fetch(
+        `/api/roof-analysis?lat=${newLat}&lng=${newLng}`
+      );
+      const roofData: RoofAnalysisResponse = await roofRes.json();
+      if (roofData.success && roofData.data) {
+        const newPricing = calculatePricing({
+          sqFt: roofData.data.roofAreaSqFt,
+          costPerSqFt: pricingSettings.costPerSqFt,
+          targetProfit: pricingSettings.targetProfit,
+          includeGutters: true,
+          perimeterFt: roofData.data.perimeterFt,
+          gutterPricePerFt: pricingSettings.gutterPricePerFt,
+          tier1DealerFee: pricingSettings.tier1DealerFee,
+          tier2DealerFee: pricingSettings.tier2DealerFee,
+          tier3DealerFee: pricingSettings.tier3DealerFee,
+          roofFeatures: estimate.roofFeatures,
+          solarPanelPricePerUnit: pricingSettings.solarPanelPricePerUnit,
+          skylightPricePerUnit: pricingSettings.skylightPricePerUnit,
+          satellitePricePerUnit: pricingSettings.satellitePricePerUnit,
+        });
+        setEstimate((prev) =>
+          prev
+            ? { ...prev, roof: roofData.data!, pricing: newPricing }
+            : prev
+        );
+      }
+    } catch (err) {
+      console.error("Re-measure failed:", err);
+    } finally {
+      setIsRemeasuring(false);
+    }
+  }, [estimate, pricingSettings]);
 
   // Hooks for localStorage features
   const { recentSearches, addSearch, clearSearches } = useRecentSearches();
@@ -671,16 +711,15 @@ export default function DashboardPage() {
                 </div>
               </div>
               <div>
-                <p className="mb-2 text-sm font-medium text-neutral-600">Aerial View</p>
-                <div className="relative aspect-[2/1] w-full overflow-hidden rounded-xl ring-1 ring-neutral-200/50">
-                  <Image
-                    src={estimate.address.aerialViewUrl}
-                    alt={`Aerial view of ${estimate.address.formattedAddress}`}
-                    fill
-                    sizes="(max-width: 640px) 100vw, 50vw"
-                    className="object-cover hover:scale-[1.02] transition-transform duration-500"
-                  />
-                </div>
+                <ClickableAerialMap
+                  lat={estimate.address.latitude}
+                  lng={estimate.address.longitude}
+                  address={estimate.address.formattedAddress}
+                  roofAreaSqFt={estimate.roof.roofAreaSqFt}
+                  segments={estimate.roof.roofFacets}
+                  onLocationClick={handleRemeasure}
+                  isLoading={isRemeasuring}
+                />
               </div>
             </div>
             {/* Property Value Estimate */}
